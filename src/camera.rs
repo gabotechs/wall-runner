@@ -5,7 +5,6 @@ use bevy::prelude::*;
 /// Keeps track of mouse motion events, pitch, and yaw
 #[derive(Default)]
 pub struct CameraState {
-    reader_motion: ManualEventReader<MouseMotion>,
     pub pitch: f32,
     pub yaw: f32,
 }
@@ -53,10 +52,18 @@ fn initial_grab_cursor(mut windows: ResMut<Windows>) {
 }
 
 /// Spawns the `Camera3dBundle` to be controlled
-fn setup_camera(mut commands: Commands, initial_pos: Res<CameraPosition>) {
+fn setup_camera(
+    mut commands: Commands,
+    initial_pos: Res<CameraPosition>,
+    initial_state: Res<CameraState>,
+) {
     commands
         .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_xyz(initial_pos.0, initial_pos.1, initial_pos.2),
+            transform: Transform::from_xyz(initial_pos.0, initial_pos.1, initial_pos.2)
+                .with_rotation(
+                    Quat::from_axis_angle(Vec3::Y, initial_state.yaw)
+                        * Quat::from_axis_angle(Vec3::X, initial_state.pitch),
+                ),
             ..Default::default()
         })
         .insert(FlyCam);
@@ -68,6 +75,7 @@ fn camera_look(
     camera_pos: Res<CameraPosition>,
     windows: Res<Windows>,
     mut state: ResMut<CameraState>,
+    mut reader_motion: ResMut<ManualEventReader<MouseMotion>>,
     motion: Res<Events<MouseMotion>>,
     mut query: Query<&mut Transform, With<FlyCam>>,
 ) {
@@ -77,7 +85,7 @@ fn camera_look(
     }
     let mut delta_state = state.as_mut();
     for mut transform in query.iter_mut() {
-        for ev in delta_state.reader_motion.iter(&motion) {
+        for ev in reader_motion.iter(&motion) {
             // Using smallest of height or width ensures equal vertical and horizontal sensitivity
             let scale = window.height().min(window.width());
             delta_state.pitch -= (settings.sensitivity * ev.delta.y * scale).to_radians();
@@ -99,6 +107,7 @@ pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CameraState>()
+            .init_resource::<ManualEventReader<MouseMotion>>()
             .init_resource::<CameraMovementSettings>()
             .init_resource::<CameraPosition>()
             .add_startup_system(setup_camera)

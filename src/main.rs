@@ -4,46 +4,33 @@ mod player;
 mod scene;
 mod window;
 
-use bevy::pbr::wireframe::Wireframe;
 use bevy::prelude::*;
-use rand::prelude::*;
+use bevy_rapier3d::prelude::*;
 
-const WORLD_SIZE: f32 = 100.0;
-const GRID_SIZE: i32 = 100;
-
-fn init_components(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    commands.spawn_bundle(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Plane { size: WORLD_SIZE })),
-        material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
-        ..default()
-    });
-    let mut rng = thread_rng();
-    let x: f32 = WORLD_SIZE / (GRID_SIZE as f32);
-    let z: f32 = WORLD_SIZE / (GRID_SIZE as f32);
-    for i in 0..GRID_SIZE {
-        for j in 0..GRID_SIZE {
-            let random_float: f32 = rng.gen();
-            let r: f32 = rng.gen();
-            let g: f32 = rng.gen();
-            let b: f32 = rng.gen();
-            let y: f32 = random_float * 3.0;
-            commands
-                .spawn_bundle(PbrBundle {
-                    mesh: meshes.add(Mesh::from(shape::Box::new(x, y, z))),
-                    transform: Transform::from_xyz(
-                        (i as f32) * x - WORLD_SIZE / 2.0,
-                        y / 2.0,
-                        (j as f32) * z - WORLD_SIZE / 2.0,
-                    ),
-                    material: materials.add(Color::hsl(r, g, b).into()),
-                    ..default()
-                })
-                .insert(Wireframe);
-        }
+fn get_levels() -> level::LevelStructure {
+    level::LevelStructure {
+        sections: vec![
+            level::LevelSection {
+                blocks: vec![shape::Box {
+                    min_x: 0.0,
+                    max_x: 5.0,
+                    min_y: 0.0,
+                    max_y: 1.0,
+                    min_z: 0.0,
+                    max_z: 30.0,
+                }],
+            },
+            level::LevelSection {
+                blocks: vec![shape::Box {
+                    min_x: 0.0,
+                    max_x: 1.0,
+                    min_y: 2.0,
+                    max_y: 5.0,
+                    min_z: 0.0,
+                    max_z: 20.0,
+                }],
+            },
+        ],
     }
 }
 
@@ -62,13 +49,20 @@ fn attach_camera_to_player(
 #[bevy_main]
 fn main() {
     App::new()
-        .insert_resource(player::PlayerPosition(-2.0, 5.0, 5.0))
+        .insert_resource(player::PlayerPosition(2.5, 4.0, 2.0))
+        .insert_resource(camera::CameraState {
+            yaw: std::f32::consts::PI,
+            pitch: 0.0,
+        })
+        .insert_resource(get_levels())
         .add_plugins(DefaultPlugins)
         .add_plugin(window::WindowPlugin)
         .add_plugin(scene::ScenePlugin)
         .add_plugin(camera::CameraPlugin)
         .add_plugin(player::PlayerPlugin)
-        .add_startup_system(init_components)
+        .add_plugin(level::LevelPlugin)
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierDebugRenderPlugin::default())
         .add_system(attach_camera_to_player)
         .run();
 }

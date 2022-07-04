@@ -16,3 +16,4 @@ bevy = { version = "0.7", features = ["dynamic"] }
 bevy_config_cam = { version = "0.3.0"} # <--
 rand = "0.8.5"
 bevy_atmosphere = "0.3.1"
+bevy_rapier3d = "0.14.1"

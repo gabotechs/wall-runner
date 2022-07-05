@@ -35,24 +35,24 @@ fn get_levels() -> level::LevelStructure {
 }
 
 fn attach_camera_to_player(
-    mut camera_pos: ResMut<camera::CameraPosition>,
-    camera_state: Res<camera::CameraState>,
-    mut player_angle: ResMut<player::DisplacementAngle>,
-    player_pos: Res<player::PlayerPosition>,
+    mut camera_state: ResMut<camera::CameraState>,
+    mut player_state: ResMut<player::PlayerState>,
 ) {
-    camera_pos.0 = player_pos.0;
-    camera_pos.1 = player_pos.1;
-    camera_pos.2 = player_pos.2;
-    player_angle.0 = camera_state.yaw;
+    camera_state.position = player_state.position;
+    player_state.y_angle = camera_state.yaw;
 }
 
 #[bevy_main]
 fn main() {
     App::new()
-        .insert_resource(player::PlayerPosition(2.5, 4.0, 2.0))
+        .insert_resource(player::PlayerState {
+            y_angle: std::f32::consts::PI,
+            position: Vec3::new(2.5, 4.0, 2.0),
+        })
         .insert_resource(camera::CameraState {
             yaw: std::f32::consts::PI,
             pitch: 0.0,
+            ..default()
         })
         .insert_resource(get_levels())
         .add_plugins(DefaultPlugins)

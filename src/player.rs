@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
-pub struct MoveSettings {
+pub struct PlayerSettings {
+    pub size: f32,
     pub speed: f32,
     pub jump_velocity: f32,
     pub forward: KeyCode,
@@ -12,11 +13,12 @@ pub struct MoveSettings {
     pub run: KeyCode,
 }
 
-impl Default for MoveSettings {
+impl Default for PlayerSettings {
     fn default() -> Self {
-        MoveSettings {
+        PlayerSettings {
+            size: 2.0,
             speed: 10.0,
-            jump_velocity: 10.0,
+            jump_velocity: 5.0,
             forward: KeyCode::W,
             backward: KeyCode::S,
             left: KeyCode::A,
@@ -27,54 +29,64 @@ impl Default for MoveSettings {
     }
 }
 
-pub struct PlayerSettings {
-    size: f32,
+pub struct PlayerState {
+    pub position: Vec3,
+    pub y_angle: f32,
 }
 
-impl Default for PlayerSettings {
+impl Default for PlayerState {
     fn default() -> Self {
-        PlayerSettings { size: 1.0 }
+        PlayerState {
+            position: Vec3::new(0.0, 0.0, 0.0),
+            y_angle: 0.0,
+        }
     }
 }
-
-#[derive(Default)]
-pub struct PlayerPosition(pub f32, pub f32, pub f32);
-
-#[derive(Default)]
-pub struct DisplacementAngle(pub f32);
 
 #[derive(Component)]
 pub struct Player;
 
+fn is_in_ground(
+    entity: Entity,
+    player_size: f32,
+    current_position: Vec3,
+    rapier_context: &Res<RapierContext>,
+) -> bool {
+    let ray_dir = Vec3::new(0.0, -1.0, 0.0);
+    let groups = InteractionGroups::all();
+    rapier_context
+        .cast_shape(
+            current_position,
+            Quat::default(),
+            ray_dir,
+            &Collider::ball(player_size),
+            player_size,
+            groups,
+            Some(&|en: Entity| entity != en),
+        )
+        .is_some()
+}
+
 fn jump_player(
     keys: Res<Input<KeyCode>>,
     player_settings: Res<PlayerSettings>,
-    settings: Res<MoveSettings>,
+    settings: Res<PlayerSettings>,
     rapier_context: Res<RapierContext>,
-    mut player_query: Query<(&Transform, &mut Velocity, &Collider, Entity), With<Player>>,
+    mut player_query: Query<(&Transform, &mut Velocity, Entity), With<Player>>,
 ) {
-    for (transform, mut velocity, collider, entity) in player_query.iter_mut() {
+    for (transform, mut velocity, entity) in player_query.iter_mut() {
         if keys.just_pressed(settings.jump) {
-            let ray_pos = Vec3::new(
-                transform.translation.x,
-                transform.translation.y,
-                transform.translation.z,
+            let is_in_ground = is_in_ground(
+                entity,
+                player_settings.size / 2.0,
+                Vec3::new(
+                    transform.translation.x,
+                    transform.translation.y,
+                    transform.translation.z,
+                ),
+                &rapier_context,
             );
-            let ray_dir = Vec3::new(0.0, -1.0, 0.0);
-            let max_toi = player_settings.size / 2.0;
-            let groups = InteractionGroups::all();
-            if rapier_context
-                .cast_shape(
-                    ray_pos,
-                    Quat::default(),
-                    ray_dir,
-                    collider,
-                    max_toi,
-                    groups,
-                    Some(&|en: Entity| entity != en),
-                )
-                .is_some()
-            {
+            if is_in_ground {
                 velocity.linvel += Vec3::new(0.0, settings.jump_velocity, 0.0);
             }
         }
@@ -83,10 +95,11 @@ fn jump_player(
 
 fn move_player(
     keys: Res<Input<KeyCode>>,
-    settings: Res<MoveSettings>,
-    angle: Res<DisplacementAngle>,
+    settings: Res<PlayerSettings>,
+    player_state: Res<PlayerState>,
     mut player_query: Query<&mut Velocity, With<Player>>,
 ) {
+    let angle = player_state.y_angle;
     for mut velocity in player_query.iter_mut() {
         let mut vec = Vec3::new(0.0, velocity.linvel.y, 0.0);
         let mut forward_speed = settings.speed;
@@ -98,27 +111,27 @@ fn move_player(
         for key in keys.get_pressed() {
             if key == &settings.forward {
                 vec += Vec3::new(
-                    -forward_speed * angle.0.sin(),
+                    -forward_speed * angle.sin(),
                     0.0,
-                    -forward_speed * angle.0.cos(),
+                    -forward_speed * angle.cos(),
                 );
             } else if key == &settings.backward {
                 vec += Vec3::new(
-                    backward_speed * angle.0.sin(),
+                    backward_speed * angle.sin(),
                     0.0,
-                    backward_speed * angle.0.cos(),
+                    backward_speed * angle.cos(),
                 );
             } else if key == &settings.left {
                 vec += Vec3::new(
-                    -lateral_speed * angle.0.cos(),
+                    -lateral_speed * angle.cos(),
                     0.0,
-                    lateral_speed * angle.0.sin(),
+                    lateral_speed * angle.sin(),
                 );
             } else if key == &settings.right {
                 vec += Vec3::new(
-                    lateral_speed * angle.0.cos(),
+                    lateral_speed * angle.cos(),
                     0.0,
-                    -lateral_speed * angle.0.sin(),
+                    -lateral_speed * angle.sin(),
                 );
             }
         }
@@ -127,24 +140,24 @@ fn move_player(
 }
 
 fn update_position(
-    mut position: ResMut<PlayerPosition>,
+    mut player_state: ResMut<PlayerState>,
     mut player_query: Query<&Transform, With<Player>>,
 ) {
     for transform in player_query.iter_mut() {
-        position.0 = transform.translation.x;
-        position.1 = transform.translation.y;
-        position.2 = transform.translation.z;
+        player_state.position = transform.translation;
     }
 }
 
 fn setup_player(
     mut commands: Commands,
-    position: Res<PlayerPosition>,
     player_settings: Res<PlayerSettings>,
+    player_state: Res<PlayerState>,
 ) {
     commands
         .spawn_bundle(TransformBundle::from(Transform::from_xyz(
-            position.0, position.1, position.2,
+            player_state.position.x,
+            player_state.position.y,
+            player_state.position.z,
         )))
         .insert(Collider::ball(player_settings.size / 2.0))
         .insert(Velocity::default())
@@ -157,10 +170,8 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<MoveSettings>()
+        app.init_resource::<PlayerState>()
             .init_resource::<PlayerSettings>()
-            .init_resource::<PlayerPosition>()
-            .init_resource::<DisplacementAngle>()
             .add_startup_system(setup_player)
             .add_system(update_position)
             .add_system(jump_player)

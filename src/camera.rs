@@ -7,19 +7,16 @@ use bevy::prelude::*;
 pub struct CameraState {
     pub pitch: f32,
     pub yaw: f32,
+    pub position: Vec3,
 }
 
-/// Camera position
-#[derive(Default)]
-pub struct CameraPosition(pub f32, pub f32, pub f32);
-
 /// Mouse sensitivity and movement speed
-pub struct CameraMovementSettings {
+pub struct CameraSettings {
     pub sensitivity: f32,
     pub speed: f32,
 }
 
-impl Default for CameraMovementSettings {
+impl Default for CameraSettings {
     fn default() -> Self {
         Self {
             sensitivity: 0.00012,
@@ -52,18 +49,18 @@ fn initial_grab_cursor(mut windows: ResMut<Windows>) {
 }
 
 /// Spawns the `Camera3dBundle` to be controlled
-fn setup_camera(
-    mut commands: Commands,
-    initial_pos: Res<CameraPosition>,
-    initial_state: Res<CameraState>,
-) {
+fn setup_camera(mut commands: Commands, initial_state: Res<CameraState>) {
     commands
         .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_xyz(initial_pos.0, initial_pos.1, initial_pos.2)
-                .with_rotation(
-                    Quat::from_axis_angle(Vec3::Y, initial_state.yaw)
-                        * Quat::from_axis_angle(Vec3::X, initial_state.pitch),
-                ),
+            transform: Transform::from_xyz(
+                initial_state.position.x,
+                initial_state.position.y,
+                initial_state.position.z,
+            )
+            .with_rotation(
+                Quat::from_axis_angle(Vec3::Y, initial_state.yaw)
+                    * Quat::from_axis_angle(Vec3::X, initial_state.pitch),
+            ),
             ..Default::default()
         })
         .insert(FlyCam);
@@ -71,10 +68,9 @@ fn setup_camera(
 
 /// Handles looking around if cursor is locked
 fn camera_look(
-    settings: Res<CameraMovementSettings>,
-    camera_pos: Res<CameraPosition>,
+    settings: Res<CameraSettings>,
     windows: Res<Windows>,
-    mut state: ResMut<CameraState>,
+    mut camera_state: ResMut<CameraState>,
     mut reader_motion: ResMut<ManualEventReader<MouseMotion>>,
     motion: Res<Events<MouseMotion>>,
     mut query: Query<&mut Transform, With<FlyCam>>,
@@ -83,7 +79,7 @@ fn camera_look(
     if !window.cursor_locked() {
         return;
     }
-    let mut delta_state = state.as_mut();
+    let mut delta_state = camera_state.as_mut();
     for mut transform in query.iter_mut() {
         for ev in reader_motion.iter(&motion) {
             // Using smallest of height or width ensures equal vertical and horizontal sensitivity
@@ -96,9 +92,7 @@ fn camera_look(
             transform.rotation = Quat::from_axis_angle(Vec3::Y, delta_state.yaw)
                 * Quat::from_axis_angle(Vec3::X, delta_state.pitch);
         }
-        transform.translation.x = camera_pos.0;
-        transform.translation.y = camera_pos.1;
-        transform.translation.z = camera_pos.2;
+        transform.translation = delta_state.position;
     }
 }
 
@@ -108,8 +102,7 @@ impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CameraState>()
             .init_resource::<ManualEventReader<MouseMotion>>()
-            .init_resource::<CameraMovementSettings>()
-            .init_resource::<CameraPosition>()
+            .init_resource::<CameraSettings>()
             .add_startup_system(setup_camera)
             .add_startup_system(initial_grab_cursor)
             .add_system(camera_look)

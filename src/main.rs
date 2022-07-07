@@ -21,14 +21,24 @@ fn get_levels() -> level::LevelStructure {
                 }],
             },
             level::LevelSection {
-                blocks: vec![shape::Box {
-                    min_x: 0.0,
-                    max_x: 1.0,
-                    min_y: 2.0,
-                    max_y: 5.0,
-                    min_z: 0.0,
-                    max_z: 20.0,
-                }],
+                blocks: vec![
+                    shape::Box {
+                        min_x: 0.0,
+                        max_x: 1.0,
+                        min_y: 2.0,
+                        max_y: 5.0,
+                        min_z: 0.0,
+                        max_z: 20.0,
+                    },
+                    shape::Box {
+                        min_x: 4.0,
+                        max_x: 5.0,
+                        min_y: 2.0,
+                        max_y: 5.0,
+                        min_z: 0.0,
+                        max_z: 20.0,
+                    },
+                ],
             },
         ],
     }

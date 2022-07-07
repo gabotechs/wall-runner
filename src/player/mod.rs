@@ -1,11 +1,12 @@
-mod player_entity;
-mod player_jump;
-mod player_move;
-mod player_plugin;
-mod player_settings;
-mod player_state;
+mod entity_player;
+mod plugin_player;
+mod pre_update_system_player_contacts;
+mod resource_player_settings;
+mod resource_player_state;
+mod update_system_player_jump;
+mod update_system_player_move;
 
-pub use player_entity::*;
-pub use player_plugin::*;
-pub use player_settings::*;
-pub use player_state::*;
+pub use entity_player::*;
+pub use plugin_player::*;
+pub use resource_player_settings::*;
+pub use resource_player_state::*;

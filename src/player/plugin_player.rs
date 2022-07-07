@@ -1,8 +1,9 @@
-use super::player_entity::Player;
-use super::player_jump::jump_player;
-use super::player_move::move_player;
-use super::player_settings::PlayerSettings;
-use super::player_state::PlayerState;
+use super::entity_player::Player;
+use super::pre_update_system_player_contacts::player_contacts;
+use super::resource_player_settings::PlayerSettings;
+use super::resource_player_state::PlayerState;
+use super::update_system_player_jump::jump_player;
+use super::update_system_player_move::move_player;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
@@ -49,6 +50,7 @@ impl Plugin for PlayerPlugin {
         app.init_resource::<PlayerState>()
             .init_resource::<PlayerSettings>()
             .add_startup_system(setup_player)
+            .add_system_to_stage(CoreStage::PreUpdate, player_contacts)
             .add_system(update_position)
             .add_system(jump_player)
             .add_system(move_player);

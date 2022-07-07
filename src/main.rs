@@ -58,6 +58,7 @@ fn main() {
         .insert_resource(player::PlayerState {
             y_angle: std::f32::consts::PI,
             position: Vec3::new(2.5, 4.0, 2.0),
+            ..default()
         })
         .insert_resource(camera::CameraState {
             yaw: std::f32::consts::PI,
@@ -72,7 +73,7 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(level::LevelPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(RapierDebugRenderPlugin::default())
-        .add_system(attach_camera_to_player)
+        // .add_plugin(RapierDebugRenderPlugin::default())
+        .add_system_to_stage(CoreStage::PreUpdate, attach_camera_to_player)
         .run();
 }

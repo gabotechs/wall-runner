@@ -3,6 +3,7 @@ mod plugin_player;
 mod pre_update_system_player_contacts;
 mod resource_player_settings;
 mod resource_player_state;
+mod update_system_player_gravity;
 mod update_system_player_jump;
 mod update_system_player_move;
 

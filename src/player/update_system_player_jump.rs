@@ -11,7 +11,9 @@ pub fn jump_player(
     mut player_query: Query<&mut Velocity, With<Player>>,
 ) {
     for mut velocity in player_query.iter_mut() {
-        if keys.just_pressed(settings.jump) && player_state.is_in_ground {
+        if keys.just_pressed(settings.jump)
+            && (player_state.is_in_ground || player_state.wall_running.is_some())
+        {
             velocity.linvel += Vec3::new(0.0, settings.jump_velocity, 0.0);
         }
     }

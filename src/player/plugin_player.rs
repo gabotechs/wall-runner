@@ -4,6 +4,7 @@ use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
 use super::update_system_player_jump::jump_player;
 use super::update_system_player_move::move_player;
+use crate::player::update_system_player_gravity::update_gravity;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
@@ -40,6 +41,7 @@ fn setup_player(
             coefficient: 0.0,
             combine_rule: CoefficientCombineRule::Min,
         })
+        .insert(GravityScale::default())
         .insert(Player);
 }
 
@@ -51,6 +53,7 @@ impl Plugin for PlayerPlugin {
             .init_resource::<PlayerSettings>()
             .add_startup_system(setup_player)
             .add_system_to_stage(CoreStage::PreUpdate, player_contacts)
+            .add_system(update_gravity)
             .add_system(update_position)
             .add_system(jump_player)
             .add_system(move_player);

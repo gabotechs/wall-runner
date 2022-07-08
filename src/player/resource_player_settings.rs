@@ -21,10 +21,10 @@ impl Default for PlayerSettings {
         PlayerSettings {
             height: 2.0,
             width: 1.0,
-            walk_speed: 15.0,
-            run_speed: 20.0,
+            walk_speed: 10.0,
+            run_speed: 15.0,
             jump_velocity: 6.0,
-            air_control: 0.3,
+            air_control: 3.0,
             acceleration_factor: 0.1,
             forward: KeyCode::W,
             backward: KeyCode::S,

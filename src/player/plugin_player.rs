@@ -41,6 +41,7 @@ fn setup_player(
             coefficient: 0.0,
             combine_rule: CoefficientCombineRule::Min,
         })
+        .insert(ExternalForce::default())
         .insert(GravityScale::default())
         .insert(Player);
 }

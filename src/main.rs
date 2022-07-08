@@ -40,6 +40,16 @@ fn get_levels() -> level::LevelStructure {
                     },
                 ],
             },
+            level::LevelSection {
+                blocks: vec![shape::Box {
+                    min_x: 0.0,
+                    max_x: 5.0,
+                    min_y: 4.0,
+                    max_y: 5.0,
+                    min_z: 0.0,
+                    max_z: 30.0,
+                }],
+            },
         ],
     }
 }
@@ -57,7 +67,7 @@ fn main() {
     App::new()
         .insert_resource(player::PlayerState {
             y_angle: std::f32::consts::PI,
-            position: Vec3::new(2.5, 4.0, 2.0),
+            position: Vec3::new(2.5, 3.0, 2.0),
             ..default()
         })
         .insert_resource(camera::CameraState {

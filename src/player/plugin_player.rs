@@ -1,10 +1,10 @@
 use super::entity_player::Player;
-use super::pre_update_system_player_contacts::player_contacts;
+use super::pre_system_player_contacts::player_contacts;
 use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
-use super::update_system_player_jump::jump_player;
-use super::update_system_player_move::move_player;
-use crate::player::update_system_player_gravity::update_gravity;
+use super::system_player_jump::jump_player;
+use super::system_player_move::move_player;
+use crate::player::system_player_gravity::update_gravity;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 

@@ -2,8 +2,10 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::Velocity;
 
 pub struct WallRunningState {
-    pub start_ms: u128,
     pub normal_force: Vec3,
+    pub speed: f32,
+    pub direction: (f32, f32),
+    pub ttl_counter: u8
 }
 
 pub struct PlayerState {

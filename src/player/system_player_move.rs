@@ -35,13 +35,21 @@ pub fn move_player(
     settings: Res<PlayerSettings>,
     player_state: Res<PlayerState>,
     player_input: Res<PlayerInput>,
-    mut player_query: Query<(&mut Velocity, &mut ExternalForce), With<Player>>,
+    mut player_query: Query<
+        (
+            &mut Transform,
+            &mut Velocity,
+            &mut ExternalForce,
+            &mut ExternalImpulse,
+        ),
+        With<Player>,
+    >,
 ) {
     let mut keys_set: HashSet<KeyCode> = HashSet::new();
     for key in keys.get_pressed() {
         keys_set.insert(*key);
     }
-    for (mut velocity, mut force) in player_query.iter_mut() {
+    for (mut transform, mut velocity, mut force, mut impulse) in player_query.iter_mut() {
         let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
         if player_state.is_in_ground {
             let f = settings.acceleration_factor;
@@ -51,25 +59,23 @@ pub fn move_player(
             // no forces here, we are on the ground, we control the velocity
             force.force.x = 0.0;
             force.force.z = 0.0;
+        } else if let Some(wall_running) = &player_state.wall_running {
+            // snap to wall if wall running, by applying a force towards the wall
+            velocity.linvel.x = wall_running.direction.0 * wall_running.speed;
+            velocity.linvel.z = wall_running.direction.1 * wall_running.speed;
         } else {
             // no control of the velocity in the air, the best we can do is force
-            let v = Vec2::new(x, z).clamp_length(0.0, 1.0);
+            let v = Vec2::new(x, z).clamp_length_max(1.0);
             let x_n = v.x;
             let z_n = v.y;
             force.force.x = settings.air_control * x_n;
             force.force.z = settings.air_control * z_n;
-            // snap to wall if wall running
-            if let Some(wall_running) = &player_state.wall_running {
-                force.force.x -=
-                    2.0 * settings.speed * settings.air_control * wall_running.normal_force.x;
-                force.force.z -=
-                    2.0 * settings.speed * settings.air_control * wall_running.normal_force.z;
-            }
         }
         // clamp the horizontal velocity to not exceed the maximum run speed
         let v = Vec2::new(velocity.linvel.x, velocity.linvel.z);
         let v = v.clamp_length(0.0, settings.speed);
         velocity.linvel.x = v.x;
         velocity.linvel.z = v.y;
+        transform.rotation = Quat::from_axis_angle(Vec3::Y, player_input.y_angle)
     }
 }

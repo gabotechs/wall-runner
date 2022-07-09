@@ -72,7 +72,9 @@ fn attach_camera_to_player(
     player_settings: Res<player::PlayerSettings>,
 ) {
     const TILT_ANGLE_FACTOR: f32 = 0.4;
+    const HEAD_OFFSET: f32 = 0.1;
     camera_input.position = player_state.position;
+    camera_input.position.y += HEAD_OFFSET;
     if let Some(wall_running) = &player_state.wall_running {
         let wall_vector = Vec2::new(wall_running.normal_force.x, wall_running.normal_force.z);
         let move_vector = Vec2::new(
@@ -133,6 +135,7 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(level::LevelPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierDebugRenderPlugin::default())
         .add_system(cursor_grab)
         .add_system(reset_player_if_fall)
         .add_startup_system(initial_grab_cursor)

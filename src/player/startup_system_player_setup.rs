@@ -9,10 +9,9 @@ pub fn setup_player(mut commands: Commands, player_settings: Res<PlayerSettings>
             player_settings.initial_position.y,
             player_settings.initial_position.z,
         )))
-        .insert(Collider::cuboid(
-            player_settings.width / 2.0,
-            player_settings.height / 2.0,
-            player_settings.width / 2.0,
+        .insert(Collider::capsule_y(
+            player_settings.size,
+            player_settings.size * 0.25,
         ))
         .insert(Velocity::default())
         .insert(RigidBody::Dynamic)
@@ -22,7 +21,11 @@ pub fn setup_player(mut commands: Commands, player_settings: Res<PlayerSettings>
             coefficient: 0.0,
             combine_rule: CoefficientCombineRule::Min,
         })
+        .insert(ColliderMassProperties::Density(1.0))
         .insert(ExternalForce::default())
+        .insert(ExternalImpulse::default())
         .insert(GravityScale::default())
+        .insert(Sleeping::disabled())
+        .insert(Ccd::enabled())
         .insert(Player);
 }

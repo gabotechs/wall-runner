@@ -6,16 +6,22 @@ use super::system_camera_tilt::*;
 use bevy::ecs::event::ManualEventReader;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
+use crate::camera::CameraInput;
+use crate::camera::system_camera_position::camera_position;
+use crate::camera::system_camera_reset::camera_reset;
 
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CameraState>()
+            .init_resource::<CameraInput>()
             .init_resource::<ManualEventReader<MouseMotion>>()
             .init_resource::<CameraSettings>()
             .add_startup_system(setup_camera)
             .add_system(camera_tilt)
+            .add_system(camera_reset)
+            .add_system(camera_position)
             .add_system(camera_look);
     }
 }

@@ -1,18 +1,22 @@
 use super::entity_camera::*;
-use super::resource_camera_state::*;
 use bevy::prelude::*;
+use crate::camera::{CameraInput, CameraSettings};
 
-pub fn setup_camera(mut commands: Commands, initial_state: Res<CameraState>) {
+pub fn setup_camera(
+    mut commands: Commands, 
+    camera_input: Res<CameraInput>,
+    camera_settings: Res<CameraSettings>
+) {
     commands
         .spawn_bundle(PerspectiveCameraBundle {
             transform: Transform::from_xyz(
-                initial_state.position.x,
-                initial_state.position.y,
-                initial_state.position.z,
+                camera_input.position.x,
+                camera_input.position.y,
+                camera_input.position.z,
             )
             .with_rotation(
-                Quat::from_axis_angle(Vec3::Y, initial_state.yaw)
-                    * Quat::from_axis_angle(Vec3::X, initial_state.pitch),
+                Quat::from_axis_angle(Vec3::Y, camera_settings.initial_yaw)
+                    * Quat::from_axis_angle(Vec3::X, camera_settings.initial_pitch),
             ),
             ..Default::default()
         })

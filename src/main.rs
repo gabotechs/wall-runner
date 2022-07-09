@@ -65,12 +65,14 @@ fn get_levels() -> level::LevelStructure {
 }
 
 fn attach_camera_to_player(
-    mut camera_state: ResMut<camera::CameraState>,
+    camera_state: ResMut<camera::CameraState>,
+    player_state: Res<player::PlayerState>,
+    mut camera_input: ResMut<camera::CameraInput>,
+    mut player_input: ResMut<player::PlayerInput>,
     player_settings: Res<player::PlayerSettings>,
-    mut player_state: ResMut<player::PlayerState>,
 ) {
     const TILT_ANGLE_FACTOR: f32 = 0.4;
-    camera_state.position = player_state.position;
+    camera_input.position = player_state.position;
     if let Some(wall_running) = &player_state.wall_running {
         let wall_vector = Vec2::new(wall_running.normal_force.x, wall_running.normal_force.z);
         let move_vector = Vec2::new(
@@ -79,34 +81,26 @@ fn attach_camera_to_player(
         );
         let angle = wall_vector.angle_between(move_vector);
         if !angle.is_nan() {
-            camera_state.tilt_target =
+            camera_input.tilt_angle =
                 angle.sin() * move_vector.length() / player_settings.speed * TILT_ANGLE_FACTOR;
         }
     } else {
-        camera_state.tilt_target = 0.0;
+        camera_input.tilt_angle = 0.0;
     }
-    player_state.y_angle = camera_state.yaw;
+    player_input.y_angle = camera_state.yaw;
 }
 
 const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
 const FAIL_Y: f32 = -1.0;
 
 fn reset_player_if_fall(
-    mut player_state: ResMut<player::PlayerState>,
-    mut player_query: Query<
-        (&mut Transform, &mut Velocity, &mut ExternalForce),
-        With<player::Player>,
-    >,
-    mut camera_state: ResMut<camera::CameraState>,
+    player_state: ResMut<player::PlayerState>,
+    mut player_input: ResMut<player::PlayerInput>,
+    mut camera_input: ResMut<camera::CameraInput>,
 ) {
     if player_state.position.y < FAIL_Y {
-        for (mut transform, mut velocity, mut force) in player_query.iter_mut() {
-            transform.translation = Vec3::from(INITIAL_POS);
-            velocity.linvel = Vec3::default();
-            force.force = Vec3::default();
-        }
-        player_state.reset();
-        camera_state.reset();
+        player_input.reset = true;
+        camera_input.reset = true;
     }
 }
 
@@ -127,8 +121,8 @@ fn initial_grab_cursor(mut windows: ResMut<Windows>) {
 #[bevy_main]
 fn main() {
     App::new()
-        .insert_resource(player::PlayerState {
-            position: Vec3::from(INITIAL_POS),
+        .insert_resource(player::PlayerSettings {
+            initial_position: Vec3::from(INITIAL_POS),
             ..default()
         })
         .insert_resource(get_levels())

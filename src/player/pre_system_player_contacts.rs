@@ -7,11 +7,11 @@ pub fn player_contacts(
     rapier_context: Res<RapierContext>,
     time: Res<Time>,
     mut player_state: ResMut<PlayerState>,
-    mut player_query: Query<(&Velocity, Entity), With<Player>>,
+    mut player_query: Query<Entity, With<Player>>,
 ) {
     let mut is_in_ground = false;
     let mut normal_sum = Vec3::default();
-    for (&velocity, entity) in player_query.iter_mut() {
+    for entity in player_query.iter_mut() {
         for contact_pair in rapier_context.contacts_with(entity) {
             let direction = if contact_pair.collider1() == entity {
                 -1.0
@@ -27,9 +27,6 @@ pub fn player_contacts(
                 normal_sum += normal;
             }
         }
-        if is_in_ground {
-            player_state.inertia = velocity.linvel;
-        }
     }
     normal_sum = normal_sum.normalize();
 
@@ -41,12 +38,16 @@ pub fn player_contacts(
                 normal_force: normal_sum,
             })
         } else {
+            println!("start wall run");
             player_state.wall_running = Some(WallRunningState {
                 start_ms: time.time_since_startup().as_millis(),
                 normal_force: normal_sum,
             })
         }
     } else {
+        if player_state.wall_running.is_some() {
+            println!("stop wall run");
+        }
         player_state.wall_running = None;
     }
     player_state.is_in_ground = is_in_ground;

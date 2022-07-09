@@ -29,6 +29,5 @@ pub fn camera_look(
             let tilt_quat = Quat::from_axis_angle(Vec3::Z, camera_state.tilt);
             transform.rotation = yaw_quat * pitch_quat * tilt_quat;
         }
-        transform.translation = camera_state.position;
     }
 }

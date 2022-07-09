@@ -1,6 +1,7 @@
 use super::entity_player::Player;
 use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
+use crate::player::resource_player_input::PlayerInput;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use std::collections::HashSet;
@@ -32,7 +33,8 @@ pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f
 pub fn move_player(
     keys: Res<Input<KeyCode>>,
     settings: Res<PlayerSettings>,
-    mut player_state: ResMut<PlayerState>,
+    player_state: Res<PlayerState>,
+    player_input: Res<PlayerInput>,
     mut player_query: Query<(&mut Velocity, &mut ExternalForce), With<Player>>,
 ) {
     let mut keys_set: HashSet<KeyCode> = HashSet::new();
@@ -40,7 +42,7 @@ pub fn move_player(
         keys_set.insert(*key);
     }
     for (mut velocity, mut force) in player_query.iter_mut() {
-        let (x, z) = get_move_vec(&settings, &keys_set, player_state.y_angle);
+        let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
         if player_state.is_in_ground {
             let f = settings.acceleration_factor;
             // set the velocity
@@ -59,9 +61,9 @@ pub fn move_player(
             // snap to wall if wall running
             if let Some(wall_running) = &player_state.wall_running {
                 force.force.x -=
-                    settings.speed * settings.air_control * wall_running.normal_force.x;
+                    2.0 * settings.speed * settings.air_control * wall_running.normal_force.x;
                 force.force.z -=
-                    settings.speed * settings.air_control * wall_running.normal_force.z;
+                    2.0 * settings.speed * settings.air_control * wall_running.normal_force.z;
             }
         }
         // clamp the horizontal velocity to not exceed the maximum run speed
@@ -69,6 +71,5 @@ pub fn move_player(
         let v = v.clamp_length(0.0, settings.speed);
         velocity.linvel.x = v.x;
         velocity.linvel.z = v.y;
-        player_state.velocity = *velocity;
     }
 }

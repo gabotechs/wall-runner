@@ -22,7 +22,7 @@ impl Default for PlayerSettings {
             width: 0.5,
             speed: 15.0,
             jump_velocity: 6.0,
-            air_control: 20.0,
+            air_control: 5.0,
             acceleration_factor: 0.1,
             forward: KeyCode::W,
             backward: KeyCode::S,

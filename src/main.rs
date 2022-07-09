@@ -61,7 +61,7 @@ fn attach_camera_to_player(
     player_settings: Res<player::PlayerSettings>,
     mut player_state: ResMut<player::PlayerState>,
 ) {
-    const TILT_ANGLE_FACTOR: f32 = 0.3;
+    const TILT_ANGLE_FACTOR: f32 = 0.4;
     camera_state.position = player_state.position;
     if let Some(wall_running) = &player_state.wall_running {
         let wall_vector = Vec2::new(wall_running.normal_force.x, wall_running.normal_force.z);
@@ -81,7 +81,7 @@ fn attach_camera_to_player(
 }
 
 const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
-const FAIL_Y: f32 = -10.0;
+const FAIL_Y: f32 = -1.0;
 
 fn reset_player_if_fall(
     mut player_state: ResMut<player::PlayerState>,

@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use std::collections::HashSet;
 
-fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> (f32, f32) {
+pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> (f32, f32) {
     let frontal_speed = settings.speed;
     let lateral_speed = settings.speed * 0.5;
     let mut x = 0f32;

@@ -43,13 +43,13 @@ fn spawn_level(
             commands
                 .spawn_bundle(PbrBundle {
                     mesh: meshes.add(mesh),
-                    transform: Transform::from_xyz(0f32, 0f32, current_z),
+                    transform: Transform::from_xyz(0.0, 0.0, current_z - block.max_z),
                     material: materials.add(Color::rgb(0.2, 0.3, 0.8).into()),
                     ..default()
                 })
                 .insert(RigidBody::Fixed)
                 .insert(collider.unwrap());
         }
-        current_z += max_z_in_block;
+        current_z -= max_z_in_block;
     }
 }

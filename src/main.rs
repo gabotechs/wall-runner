@@ -30,14 +30,14 @@ fn get_levels() -> level::LevelStructure {
                         min_z: 0.0,
                         max_z: 20.0,
                     },
-                    shape::Box {
-                        min_x: 4.0,
-                        max_x: 5.0,
-                        min_y: 2.0,
-                        max_y: 5.0,
-                        min_z: 0.0,
-                        max_z: 20.0,
-                    },
+                    // shape::Box {
+                    //     min_x: 4.0,
+                    //     max_x: 5.0,
+                    //     min_y: 2.0,
+                    //     max_y: 5.0,
+                    //     min_z: 0.0,
+                    //     max_z: 20.0,
+                    // },
                 ],
             },
             level::LevelSection {
@@ -56,8 +56,10 @@ fn get_levels() -> level::LevelStructure {
 
 fn attach_camera_to_player(
     mut camera_state: ResMut<camera::CameraState>,
+    player_settings: Res<player::PlayerSettings>,
     mut player_state: ResMut<player::PlayerState>,
 ) {
+    const TILT_ANGLE_FACTOR: f32 = 0.3;
     camera_state.position = player_state.position;
     if let Some(wall_running) = &player_state.wall_running {
         let wall_vector = Vec2::new(wall_running.normal_force.x, wall_running.normal_force.z);
@@ -66,7 +68,10 @@ fn attach_camera_to_player(
             player_state.velocity.linvel.z,
         );
         let angle = wall_vector.angle_between(move_vector);
-        camera_state.tilt_target = angle.sin() * 0.3;
+        if !angle.is_nan() {
+            camera_state.tilt_target =
+                angle.sin() * move_vector.length() / player_settings.speed * TILT_ANGLE_FACTOR;
+        }
     } else {
         camera_state.tilt_target = 0.0;
     }
@@ -91,13 +96,7 @@ fn initial_grab_cursor(mut windows: ResMut<Windows>) {
 fn main() {
     App::new()
         .insert_resource(player::PlayerState {
-            y_angle: std::f32::consts::PI,
-            position: Vec3::new(2.5, 3.0, 2.0),
-            ..default()
-        })
-        .insert_resource(camera::CameraState {
-            yaw: std::f32::consts::PI,
-            pitch: 0.0,
+            position: Vec3::new(2.5, 3.0, -2.0),
             ..default()
         })
         .insert_resource(get_levels())

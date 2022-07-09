@@ -21,6 +21,7 @@ fn get_levels() -> level::LevelStructure {
                     min_z: 0.0,
                     max_z: 30.0,
                 }],
+                ..default()
             },
             level::LevelSection {
                 blocks: vec![shape::Box {
@@ -31,6 +32,7 @@ fn get_levels() -> level::LevelStructure {
                     min_z: 0.0,
                     max_z: 20.0,
                 }],
+                ..default()
             },
             level::LevelSection {
                 blocks: vec![shape::Box {
@@ -41,6 +43,11 @@ fn get_levels() -> level::LevelStructure {
                     min_z: 0.0,
                     max_z: 20.0,
                 }],
+                ..default()
+            },
+            level::LevelSection {
+                length: Some(5.0),
+                ..default()
             },
             level::LevelSection {
                 blocks: vec![shape::Box {
@@ -51,6 +58,7 @@ fn get_levels() -> level::LevelStructure {
                     min_z: 0.0,
                     max_z: 30.0,
                 }],
+                ..default()
             },
         ],
     }

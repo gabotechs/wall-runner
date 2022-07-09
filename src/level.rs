@@ -3,13 +3,15 @@ use bevy_rapier3d::prelude::*;
 
 pub struct LevelPlugin;
 
+#[derive(Default)]
 pub struct LevelSection {
-    pub(crate) blocks: Vec<shape::Box>,
+    pub length: Option<f32>,
+    pub blocks: Vec<shape::Box>,
 }
 
 #[derive(Component)]
 pub struct LevelStructure {
-    pub(crate) sections: Vec<LevelSection>,
+    pub sections: Vec<LevelSection>,
 }
 
 impl Plugin for LevelPlugin {
@@ -50,6 +52,10 @@ fn spawn_level(
                 .insert(RigidBody::Fixed)
                 .insert(collider.unwrap());
         }
-        current_z -= max_z_in_block;
+        if let Some(section_length) = section.length {
+            current_z -= section_length;
+        } else {
+            current_z -= max_z_in_block;
+        }
     }
 }

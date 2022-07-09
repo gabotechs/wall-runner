@@ -80,6 +80,9 @@ fn attach_camera_to_player(
     player_state.y_angle = camera_state.yaw;
 }
 
+const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
+const FAIL_Y: f32 = -10.0;
+
 fn reset_player_if_fall(
     mut player_state: ResMut<player::PlayerState>,
     mut player_query: Query<
@@ -88,9 +91,9 @@ fn reset_player_if_fall(
     >,
     mut camera_state: ResMut<camera::CameraState>,
 ) {
-    if player_state.position.y < -10.0 {
+    if player_state.position.y < FAIL_Y {
         for (mut transform, mut velocity, mut force) in player_query.iter_mut() {
-            transform.translation = Vec3::new(2.5, 3.0, -2.0);
+            transform.translation = Vec3::from(INITIAL_POS);
             velocity.linvel = Vec3::default();
             force.force = Vec3::default();
         }
@@ -117,7 +120,7 @@ fn initial_grab_cursor(mut windows: ResMut<Windows>) {
 fn main() {
     App::new()
         .insert_resource(player::PlayerState {
-            position: Vec3::new(2.5, 3.0, -2.0),
+            position: Vec3::from(INITIAL_POS),
             ..default()
         })
         .insert_resource(get_levels())

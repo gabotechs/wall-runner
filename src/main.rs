@@ -59,7 +59,32 @@ fn attach_camera_to_player(
     mut player_state: ResMut<player::PlayerState>,
 ) {
     camera_state.position = player_state.position;
+    if let Some(wall_running) = &player_state.wall_running {
+        let wall_vector = Vec2::new(wall_running.normal_force.x, wall_running.normal_force.z);
+        let move_vector = Vec2::new(
+            player_state.velocity.linvel.x,
+            player_state.velocity.linvel.z,
+        );
+        let angle = wall_vector.angle_between(move_vector);
+        camera_state.tilt_target = angle.sin() * 0.3;
+    } else {
+        camera_state.tilt_target = 0.0;
+    }
     player_state.y_angle = camera_state.yaw;
+}
+
+fn cursor_grab(keys: Res<Input<KeyCode>>, mut windows: ResMut<Windows>) {
+    let window = windows.get_primary_mut().unwrap();
+    if keys.just_pressed(KeyCode::Escape) {
+        window.set_cursor_lock_mode(!window.cursor_locked());
+        window.set_cursor_visibility(!window.cursor_visible());
+    }
+}
+
+fn initial_grab_cursor(mut windows: ResMut<Windows>) {
+    let window = windows.get_primary_mut().unwrap();
+    window.set_cursor_lock_mode(!window.cursor_locked());
+    window.set_cursor_visibility(!window.cursor_visible());
 }
 
 #[bevy_main]
@@ -83,6 +108,8 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(level::LevelPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_system(cursor_grab)
+        .add_startup_system(initial_grab_cursor)
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_system_to_stage(CoreStage::PreUpdate, attach_camera_to_player)
         .run();

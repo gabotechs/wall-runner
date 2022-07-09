@@ -6,22 +6,17 @@ use bevy_rapier3d::prelude::*;
 use std::collections::HashSet;
 
 fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> (f32, f32) {
-    let forward_speed = if keys.contains(&settings.run) {
-        settings.run_speed
-    } else {
-        settings.walk_speed
-    };
-    let backward_speed = settings.walk_speed;
-    let lateral_speed = settings.walk_speed * 0.5;
+    let frontal_speed = settings.speed;
+    let lateral_speed = settings.speed * 0.5;
     let mut x = 0f32;
     let mut z = 0f32;
     if keys.contains(&settings.forward) {
-        x -= forward_speed * angle.sin();
-        z -= forward_speed * angle.cos();
+        x -= frontal_speed * angle.sin();
+        z -= frontal_speed * angle.cos();
     }
     if keys.contains(&settings.backward) {
-        x += backward_speed * angle.sin();
-        z += backward_speed * angle.cos();
+        x += frontal_speed * angle.sin();
+        z += frontal_speed * angle.cos();
     }
     if keys.contains(&settings.left) {
         x -= lateral_speed * angle.cos();
@@ -37,7 +32,7 @@ fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) 
 pub fn move_player(
     keys: Res<Input<KeyCode>>,
     settings: Res<PlayerSettings>,
-    player_state: Res<PlayerState>,
+    mut player_state: ResMut<PlayerState>,
     mut player_query: Query<(&mut Velocity, &mut ExternalForce), With<Player>>,
 ) {
     let mut keys_set: HashSet<KeyCode> = HashSet::new();
@@ -56,13 +51,24 @@ pub fn move_player(
             force.force.z = 0.0;
         } else {
             // no control of the velocity in the air, the best we can do is force
-            force.force.x = settings.air_control * x;
-            force.force.z = settings.air_control * z;
+            let v = Vec2::new(x, z).clamp_length(0.0, 1.0);
+            let x_n = v.x;
+            let z_n = v.y;
+            force.force.x = settings.air_control * x_n;
+            force.force.z = settings.air_control * z_n;
+            // snap to wall if wall running
+            if let Some(wall_running) = &player_state.wall_running {
+                force.force.x -=
+                    settings.speed * settings.air_control * wall_running.normal_force.x;
+                force.force.z -=
+                    settings.speed * settings.air_control * wall_running.normal_force.z;
+            }
         }
         // clamp the horizontal velocity to not exceed the maximum run speed
         let v = Vec2::new(velocity.linvel.x, velocity.linvel.z);
-        let v = v.clamp_length(0.0, settings.run_speed);
+        let v = v.clamp_length(0.0, settings.speed);
         velocity.linvel.x = v.x;
         velocity.linvel.z = v.y;
+        player_state.velocity = *velocity;
     }
 }

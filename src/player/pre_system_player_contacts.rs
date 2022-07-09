@@ -10,7 +10,7 @@ pub fn player_contacts(
     mut player_query: Query<(&Velocity, Entity), With<Player>>,
 ) {
     let mut is_in_ground = false;
-    let mut wall_running_normal: Option<Vec3> = None;
+    let mut normal_sum = Vec3::default();
     for (&velocity, entity) in player_query.iter_mut() {
         for contact_pair in rapier_context.contacts_with(entity) {
             let direction = if contact_pair.collider1() == entity {
@@ -20,31 +20,34 @@ pub fn player_contacts(
             };
             for manifold in contact_pair.manifolds() {
                 let normal = manifold.normal() * direction;
-                if normal.y > 0.95 {
+                // if at least one of the manifolds is positive and vertical, then we are on the ground
+                if normal.y > 0.9 {
                     is_in_ground = true;
-                } else if (normal.x.powi(2) + normal.z.powi(2)).sqrt() > 0.95 {
-                    wall_running_normal = Some(normal);
                 }
+                normal_sum += normal;
             }
         }
         if is_in_ground {
             player_state.inertia = velocity.linvel;
         }
-        if let Some(normal_force) = wall_running_normal {
-            if let Some(wall_running) = &player_state.wall_running {
-                player_state.wall_running = Some(WallRunningState {
-                    start_ms: wall_running.start_ms,
-                    normal_force,
-                })
-            } else {
-                player_state.wall_running = Some(WallRunningState {
-                    start_ms: time.time_since_startup().as_millis(),
-                    normal_force,
-                })
-            }
-        } else {
-            player_state.wall_running = None;
-        }
-        player_state.is_in_ground = is_in_ground;
     }
+    normal_sum = normal_sum.normalize();
+
+    // if the sum vector of all the normal forces has mainly an horizontal component, then we are wall running
+    if (normal_sum.x.powi(2) + normal_sum.z.powi(2)).sqrt() > 0.95 {
+        if let Some(wall_running) = &player_state.wall_running {
+            player_state.wall_running = Some(WallRunningState {
+                start_ms: wall_running.start_ms,
+                normal_force: normal_sum,
+            })
+        } else {
+            player_state.wall_running = Some(WallRunningState {
+                start_ms: time.time_since_startup().as_millis(),
+                normal_force: normal_sum,
+            })
+        }
+    } else {
+        player_state.wall_running = None;
+    }
+    player_state.is_in_ground = is_in_ground;
 }

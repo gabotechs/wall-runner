@@ -1,4 +1,4 @@
-use super::entity_camera::Camera;
+use super::entity_camera::GameCamera;
 use super::resource_camera_settings::*;
 use super::resource_camera_state::*;
 use bevy::ecs::event::{Events, ManualEventReader};
@@ -12,7 +12,7 @@ pub fn camera_look(
     mut camera_state: ResMut<CameraState>,
     mut reader_motion: ResMut<ManualEventReader<MouseMotion>>,
     motion: Res<Events<MouseMotion>>,
-    mut query: Query<&mut Transform, With<Camera>>,
+    mut query: Query<&mut Transform, With<GameCamera>>,
 ) {
     let window = windows.get_primary().unwrap();
     let scale = window.height().min(window.width());

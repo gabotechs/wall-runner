@@ -16,5 +16,5 @@ pub fn setup_camera(mut commands: Commands, initial_state: Res<CameraState>) {
             ),
             ..Default::default()
         })
-        .insert(Camera);
+        .insert(GameCamera);
 }

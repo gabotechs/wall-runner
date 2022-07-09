@@ -9,3 +9,14 @@ pub struct CameraState {
     pub tilt: f32,
     pub position: Vec3,
 }
+
+impl CameraState {
+    pub fn reset(&mut self) {
+        let new = Self::default();
+        self.pitch = new.pitch;
+        self.yaw = new.yaw;
+        self.tilt_target = new.tilt_target;
+        self.tilt = new.tilt;
+        self.position = new.position;
+    }
+}

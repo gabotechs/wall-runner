@@ -19,7 +19,7 @@ impl Default for PlayerSettings {
     fn default() -> Self {
         PlayerSettings {
             height: 2.0,
-            width: 1.0,
+            width: 0.5,
             speed: 15.0,
             jump_velocity: 6.0,
             air_control: 20.0,

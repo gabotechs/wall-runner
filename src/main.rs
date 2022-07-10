@@ -46,7 +46,7 @@ fn get_levels() -> level::LevelStructure {
                 ..default()
             },
             level::LevelSection {
-                length: Some(20.0),
+                length: Some(10.0),
                 ..default()
             },
             level::LevelSection {
@@ -135,7 +135,7 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(level::LevelPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(RapierDebugRenderPlugin::default())
+        // .add_plugin(RapierDebugRenderPlugin::default())
         .add_system(cursor_grab)
         .add_system(reset_player_if_fall)
         .add_startup_system(initial_grab_cursor)

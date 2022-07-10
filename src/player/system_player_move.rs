@@ -35,21 +35,13 @@ pub fn move_player(
     settings: Res<PlayerSettings>,
     player_state: Res<PlayerState>,
     player_input: Res<PlayerInput>,
-    mut player_query: Query<
-        (
-            &mut Transform,
-            &mut Velocity,
-            &mut ExternalForce,
-            &mut ExternalImpulse,
-        ),
-        With<Player>,
-    >,
+    mut player_query: Query<(&mut Transform, &mut Velocity, &mut ExternalForce), With<Player>>,
 ) {
     let mut keys_set: HashSet<KeyCode> = HashSet::new();
     for key in keys.get_pressed() {
         keys_set.insert(*key);
     }
-    for (mut transform, mut velocity, mut force, mut impulse) in player_query.iter_mut() {
+    for (mut transform, mut velocity, mut force) in player_query.iter_mut() {
         let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
         if player_state.is_in_ground {
             let f = settings.acceleration_factor;

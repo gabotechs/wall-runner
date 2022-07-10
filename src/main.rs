@@ -1,6 +1,7 @@
 extern crate core;
 
 mod camera;
+mod camera_player_sync;
 mod level;
 mod player;
 mod scene;
@@ -64,34 +65,6 @@ fn get_levels() -> level::LevelStructure {
     }
 }
 
-fn attach_camera_to_player(
-    camera_state: ResMut<camera::CameraState>,
-    player_state: Res<player::PlayerState>,
-    mut camera_input: ResMut<camera::CameraInput>,
-    mut player_input: ResMut<player::PlayerInput>,
-    player_settings: Res<player::PlayerSettings>,
-) {
-    const TILT_ANGLE_FACTOR: f32 = 0.4;
-    const HEAD_OFFSET: f32 = 0.1;
-    camera_input.position = player_state.position;
-    camera_input.position.y += HEAD_OFFSET;
-    if let Some(wall_running) = &player_state.wall_running {
-        let wall_vector = Vec2::new(wall_running.normal_force.x, wall_running.normal_force.z);
-        let move_vector = Vec2::new(
-            player_state.velocity.linvel.x,
-            player_state.velocity.linvel.z,
-        );
-        let angle = wall_vector.angle_between(move_vector);
-        if !angle.is_nan() {
-            camera_input.tilt_angle =
-                angle.sin() * move_vector.length() / player_settings.speed * TILT_ANGLE_FACTOR;
-        }
-    } else {
-        camera_input.tilt_angle = 0.0;
-    }
-    player_input.y_angle = camera_state.yaw;
-}
-
 const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
 const FAIL_Y: f32 = -1.0;
 
@@ -140,6 +113,9 @@ fn main() {
         .add_system(reset_player_if_fall)
         .add_startup_system(initial_grab_cursor)
         // .add_plugin(RapierDebugRenderPlugin::default())
-        .add_system_to_stage(CoreStage::PreUpdate, attach_camera_to_player)
+        .add_system_to_stage(
+            CoreStage::PreUpdate,
+            camera_player_sync::attach_camera_to_player,
+        )
         .run();
 }

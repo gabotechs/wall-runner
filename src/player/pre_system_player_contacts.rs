@@ -2,7 +2,7 @@ use super::Player;
 use crate::player::{PlayerSettings, PlayerState, WallRunningState};
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
-use std::borrow::{Borrow, BorrowMut};
+use std::borrow::BorrowMut;
 
 pub fn player_contacts(
     rapier_context: Res<RapierContext>,

@@ -79,9 +79,14 @@ fn reset_player_if_fall(
     }
 }
 
-fn cursor_grab(keys: Res<Input<KeyCode>>, mut windows: ResMut<Windows>) {
+fn cursor_grab(
+    keys: Res<Input<KeyCode>>,
+    mut windows: ResMut<Windows>,
+    mut camera_input: ResMut<camera::CameraInput>,
+) {
     let window = windows.get_primary_mut().unwrap();
     if keys.just_pressed(KeyCode::Escape) {
+        camera_input.inactive = !camera_input.inactive;
         window.set_cursor_lock_mode(!window.cursor_locked());
         window.set_cursor_visibility(!window.cursor_visible());
     }

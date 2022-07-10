@@ -1,6 +1,7 @@
 use super::entity_camera::GameCamera;
 use super::resource_camera_settings::*;
 use super::resource_camera_state::*;
+use crate::camera::CameraInput;
 use bevy::ecs::event::{Events, ManualEventReader};
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
@@ -9,11 +10,15 @@ use bevy::prelude::*;
 pub fn camera_look(
     settings: Res<CameraSettings>,
     windows: Res<Windows>,
+    camera_input: Res<CameraInput>,
     mut camera_state: ResMut<CameraState>,
     mut reader_motion: ResMut<ManualEventReader<MouseMotion>>,
     motion: Res<Events<MouseMotion>>,
     mut query: Query<&mut Transform, With<GameCamera>>,
 ) {
+    if camera_input.inactive {
+        return;
+    }
     let window = windows.get_primary().unwrap();
     let scale = window.height().min(window.width());
     for mut transform in query.iter_mut() {

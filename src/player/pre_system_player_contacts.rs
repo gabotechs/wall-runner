@@ -32,8 +32,6 @@ pub fn player_contacts(
         is_in_ground = true;
         // if the sum vector of all the normal forces has mainly an horizontal component, then we are wall running
     } else if has_horizontal_forces && player_state.wall_running.is_none() {
-        println!("start wall run");
-        println!("{:?}", normal_force);
         let current_direction = Vec2::new(
             player_state.velocity.linvel.x,
             player_state.velocity.linvel.z,
@@ -50,7 +48,7 @@ pub fn player_contacts(
         };
         let direction = tangent_direction + current_direction;
         let direction = direction.clamp_length_max(1.0) * speed;
-        println!("{:?}", direction);
+        info!("start wall run, normal: {:?}, direction: {:?}", normal_force, direction);
         player_state.wall_running = Some(WallRunningState {
             just_started: true,
             ttl_counter: 0,
@@ -62,8 +60,10 @@ pub fn player_contacts(
         if let Some(wall_running) = player_state.wall_running.borrow_mut() {
             wall_running.ttl_counter += 1;
             if wall_running.ttl_counter > settings.wall_run_ttl_frames {
-                println!("stop wall run");
+                info!("stop wall run");
                 player_state.wall_running = None;
+            } else {
+                info!("wall running ttl counter increase, currently: {}", wall_running.ttl_counter)
             }
         }
     } else if has_horizontal_forces && player_state.wall_running.is_some() {

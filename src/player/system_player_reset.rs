@@ -9,6 +9,7 @@ pub fn reset_player(
     settings: Res<PlayerSettings>,
 ) {
     if player_input.reset {
+        info!("resetting player");
         for (mut transform, mut velocity, mut force) in player_query.iter_mut() {
             transform.translation = settings.initial_position;
             velocity.linvel = Vec3::default();

@@ -1,21 +1,22 @@
 use crate::player::PlayerState;
-use crate::{AssetServer, Res, ResMut};
+use crate::{AssetServer, Res, ResMut, Time};
 use bevy_kira_audio::*;
 
 pub struct WallRunAudio;
 
 pub struct LandAudio;
 
-const CONSIDER_PLAYED_LANDED_AFTER_FRAMES: u8 = 10;
+const PLAYED_LANDED_AFTER_MS: u128 = 1000;
 
 #[derive(Default)]
 pub struct PlayerAudioState {
     is_playing_wall_running: bool,
-    play_land_when_grounded_ttl: u128,
+    in_air_since: u128,
 }
 
 pub fn player_audio(
     player_state: Res<PlayerState>,
+    time: Res<Time>,
     mut player_audio_state: ResMut<PlayerAudioState>,
     wall_run_audio: Res<AudioChannel<WallRunAudio>>,
     land_audio: Res<AudioChannel<LandAudio>>,
@@ -32,14 +33,14 @@ pub fn player_audio(
         wall_run_audio.play(asset_server.load("wall-run-decay.wav"));
         player_audio_state.is_playing_wall_running = false;
     }
-    if !player_state.is_in_ground {
-        player_audio_state.play_land_when_grounded_ttl += 1;
-    } else if player_audio_state.play_land_when_grounded_ttl
-        > CONSIDER_PLAYED_LANDED_AFTER_FRAMES as u128
-    {
-        land_audio.play(asset_server.load("land.flac"));
-        player_audio_state.play_land_when_grounded_ttl = 0;
-    } else {
-        player_audio_state.play_land_when_grounded_ttl = 0;
+    let now = time.time_since_startup().as_millis();
+    if player_audio_state.in_air_since == 0 {
+        player_audio_state.in_air_since = now;
+    }
+    if player_state.is_in_ground {
+        if (now - player_audio_state.in_air_since) > PLAYED_LANDED_AFTER_MS {
+            land_audio.play(asset_server.load("land.flac"));
+        }
+        player_audio_state.in_air_since = now;
     }
 }

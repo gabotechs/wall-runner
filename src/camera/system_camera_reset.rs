@@ -8,6 +8,7 @@ pub fn camera_reset(
     mut camera_query: Query<&mut Transform, With<GameCamera>>,
 ) {
     if camera_input.reset {
+        info!("resetting camera");
         for mut transform in camera_query.iter_mut() {
             transform.rotation = Quat::from_axis_angle(Vec3::Y, camera_settings.initial_yaw)
                 * Quat::from_axis_angle(Vec3::X, camera_settings.initial_pitch);

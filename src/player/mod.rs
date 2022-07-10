@@ -6,6 +6,7 @@ mod resource_player_input;
 mod resource_player_settings;
 mod resource_player_state;
 mod startup_system_player_setup;
+mod system_player_audio;
 mod system_player_gravity;
 mod system_player_jump;
 mod system_player_move;

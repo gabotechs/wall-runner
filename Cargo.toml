@@ -13,7 +13,25 @@ opt-level = 3
 
 [dependencies]
 bevy = { version = "0.7", features = ["dynamic"] }
-bevy_config_cam = { version = "0.3.0"} # <--
 rand = "0.8.5"
 bevy_atmosphere = "0.3.1"
 bevy_rapier3d = "0.14.1"
+bevy_kira_audio = "0.10.0"
+
+[features]
+default = [
+    "bevy/bevy_winit",
+    "bevy/render",
+    "bevy/png",
+    "bevy/x11",
+    "bevy/animation",
+    "bevy/bevy_gilrs",
+    "bevy/hdr",
+    "bevy/filesystem_watcher",
+    "bevy_kira_audio/wav",
+    "bevy_kira_audio/flac"
+]
+
+dev = [
+    "bevy/dynamic",
+]

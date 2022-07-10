@@ -52,6 +52,7 @@ pub fn player_contacts(
         let direction = direction.clamp_length_max(1.0) * speed;
         println!("{:?}", direction);
         player_state.wall_running = Some(WallRunningState {
+            just_started: true,
             ttl_counter: 0,
             normal_force,
             speed,
@@ -68,6 +69,7 @@ pub fn player_contacts(
     } else if has_horizontal_forces && player_state.wall_running.is_some() {
         if let Some(wall_running) = player_state.wall_running.borrow_mut() {
             wall_running.ttl_counter = 0;
+            wall_running.just_started = false;
         }
     }
     player_state.is_in_ground = is_in_ground;

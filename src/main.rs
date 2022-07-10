@@ -8,6 +8,7 @@ mod scene;
 mod window;
 
 use bevy::prelude::*;
+use bevy_kira_audio::*;
 use bevy_rapier3d::prelude::*;
 
 fn get_levels() -> level::LevelStructure {
@@ -28,8 +29,8 @@ fn get_levels() -> level::LevelStructure {
                 blocks: vec![shape::Box {
                     min_x: 0.0,
                     max_x: 1.0,
-                    min_y: 2.0,
-                    max_y: 5.0,
+                    min_y: 3.0,
+                    max_y: 6.0,
                     min_z: 0.0,
                     max_z: 20.0,
                 }],
@@ -107,6 +108,7 @@ fn main() {
         })
         .insert_resource(get_levels())
         .add_plugins(DefaultPlugins)
+        .add_plugin(AudioPlugin)
         .add_plugin(window::WindowPlugin)
         .add_plugin(scene::ScenePlugin)
         .add_plugin(camera::CameraPlugin)

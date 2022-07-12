@@ -45,7 +45,7 @@ fn spawn_level(
             commands
                 .spawn_bundle(PbrBundle {
                     mesh: meshes.add(mesh),
-                    transform: Transform::from_xyz(0.0, 0.0, current_z - block.max_z),
+                    transform: Transform::from_xyz(0.0, 0.0, current_z - block.max_z - block.min_z),
                     material: materials.add(Color::rgb(0.2, 0.3, 0.8).into()),
                     ..default()
                 })

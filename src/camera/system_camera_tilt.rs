@@ -1,6 +1,6 @@
 use super::CameraState;
-use bevy::prelude::*;
 use crate::camera::CameraInput;
+use bevy::prelude::*;
 
 pub fn camera_tilt(
     mut camera_state: ResMut<CameraState>,

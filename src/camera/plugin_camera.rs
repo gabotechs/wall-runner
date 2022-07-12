@@ -3,12 +3,12 @@ use super::resource_camera_state::*;
 use super::startup_system_camera_setup::*;
 use super::system_camera_look::*;
 use super::system_camera_tilt::*;
+use crate::camera::system_camera_position::camera_position;
+use crate::camera::system_camera_reset::camera_reset;
+use crate::camera::CameraInput;
 use bevy::ecs::event::ManualEventReader;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
-use crate::camera::CameraInput;
-use crate::camera::system_camera_position::camera_position;
-use crate::camera::system_camera_reset::camera_reset;
 
 pub struct CameraPlugin;
 

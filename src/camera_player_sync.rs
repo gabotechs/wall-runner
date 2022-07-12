@@ -9,15 +9,14 @@ pub fn attach_camera_to_player(
     player_settings: Res<player::PlayerSettings>,
 ) {
     const TILT_ANGLE_FACTOR: f32 = 0.4;
-    const HEAD_OFFSET: f32 = 0.1;
+    const HEAD_HORIZONTAL_OFFSET: f32 = 0.2;
     camera_input.position = player_state.position;
-    camera_input.position.y += HEAD_OFFSET;
+    camera_input.position_offset.y = player_state.head_offset;
+    camera_input.position_offset.x = camera_state.yaw.sin() * HEAD_HORIZONTAL_OFFSET;
+    camera_input.position_offset.z = camera_state.yaw.cos() * HEAD_HORIZONTAL_OFFSET;
     if let Some(wall_running) = &player_state.wall_running {
         let wall_vector = Vec2::new(wall_running.normal_force.x, wall_running.normal_force.z);
-        let move_vector = Vec2::new(
-            player_state.velocity.linvel.x,
-            player_state.velocity.linvel.z,
-        );
+        let move_vector = player_state.kinematics.displacement;
         let angle = wall_vector.angle_between(move_vector);
         if !angle.is_nan() {
             camera_input.tilt_angle =

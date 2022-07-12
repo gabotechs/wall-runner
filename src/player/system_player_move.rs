@@ -1,9 +1,9 @@
-use super::entity_player::Player;
 use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
+use crate::player::pre_system_player_kinematics::PlayerKinematics;
 use crate::player::resource_player_input::PlayerInput;
 use bevy::prelude::*;
-use bevy_rapier3d::prelude::*;
+use std::borrow::BorrowMut;
 use std::collections::HashSet;
 
 pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> (f32, f32) {
@@ -33,41 +33,57 @@ pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f
 pub fn move_player(
     keys: Res<Input<KeyCode>>,
     settings: Res<PlayerSettings>,
-    player_state: Res<PlayerState>,
     player_input: Res<PlayerInput>,
-    mut player_query: Query<(&mut Transform, &mut Velocity, &mut ExternalForce), With<Player>>,
+    mut player_state: ResMut<PlayerState>,
+    mut kinematics: ResMut<PlayerKinematics>,
 ) {
     let mut keys_set: HashSet<KeyCode> = HashSet::new();
     for key in keys.get_pressed() {
         keys_set.insert(*key);
     }
-    for (mut transform, mut velocity, mut force) in player_query.iter_mut() {
-        let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
-        if player_state.is_in_ground {
-            let f = settings.acceleration_factor;
-            // set the velocity
-            velocity.linvel.x = f * x + (1.0 - f) * velocity.linvel.x;
-            velocity.linvel.z = f * z + (1.0 - f) * velocity.linvel.z;
-            // no forces here, we are on the ground, we control the velocity
-            force.force.x = 0.0;
-            force.force.z = 0.0;
-        } else if let Some(wall_running) = &player_state.wall_running {
-            // snap to wall if wall running, by applying a force towards the wall
-            velocity.linvel.x = wall_running.direction.0 * wall_running.speed;
-            velocity.linvel.z = wall_running.direction.1 * wall_running.speed;
-        } else {
-            // no control of the velocity in the air, the best we can do is force
-            let v = Vec2::new(x, z).clamp_length_max(1.0);
-            let x_n = v.x;
-            let z_n = v.y;
-            force.force.x = settings.air_control * x_n;
-            force.force.z = settings.air_control * z_n;
+    let f = settings.acceleration_factor;
+    let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
+    let displacement = player_state.kinematics.displacement;
+    if player_state.is_in_ground {
+        // set the velocity
+        kinematics.displacement.x += f * x + (1.0 - f) * player_state.kinematics.displacement.x;
+        kinematics.displacement.y += f * z + (1.0 - f) * player_state.kinematics.displacement.y;
+        if keys.just_pressed(settings.jump) {
+            kinematics.vertical_impulse += settings.jump_velocity;
         }
-        // clamp the horizontal velocity to not exceed the maximum run speed
-        let v = Vec2::new(velocity.linvel.x, velocity.linvel.z);
-        let v = v.clamp_length(0.0, settings.speed);
-        velocity.linvel.x = v.x;
-        velocity.linvel.z = v.y;
-        transform.rotation = Quat::from_axis_angle(Vec3::Y, player_input.y_angle)
+    } else if let Some(wall_running) = player_state.wall_running.borrow_mut() {
+        // snap to wall if wall running, this is done by locking the velocity to the wall run direction.
+        // The current running velocity must be projected onto the wall run direction, but this last
+        // vector is slightly rotated towards the wall, so each frame the velocity is projected, even
+        // if we clamp_length_min it, rapier is going to truncate it because we cannot insert ourselves
+        // into the wall. By registering the first speed, we force the speed to be the first one
+        // registered during the wall run
+        let wall_run_velocity = displacement.project_onto(wall_running.direction);
+        let wall_run_speed = if let Some(speed) = wall_running.speed {
+            speed
+        } else {
+            wall_running.speed = Some(wall_run_velocity.length());
+            wall_running.speed.unwrap()
+        };
+        if keys.just_pressed(settings.jump) {
+            let jump_displacement = Vec2::new(
+                wall_running.normal_force.x + 5.0 * x / settings.speed,
+                wall_running.normal_force.z + 5.0 * z / settings.speed,
+            )
+            .clamp_length(wall_run_speed, wall_run_speed);
+            info!("Jumping out of wall {:?}", jump_displacement);
+            kinematics.displacement += jump_displacement;
+            kinematics.vertical_impulse += settings.jump_velocity;
+            player_state.wall_run_vote = 0;
+            player_state.wall_running = None;
+        } else {
+            kinematics.displacement += wall_run_velocity.clamp_length_min(wall_run_speed);
+        }
+    } else {
+        // no control of the velocity in the air, the best we can do is force
+        let v = Vec2::new(x, z).normalize_or_zero();
+        kinematics.displacement = player_state.kinematics.displacement;
+        kinematics.force.x += settings.air_control * v.x;
+        kinematics.force.z += settings.air_control * v.y;
     }
 }

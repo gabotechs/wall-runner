@@ -1,11 +1,11 @@
 use super::entity_camera::*;
-use bevy::prelude::*;
 use crate::camera::{CameraInput, CameraSettings};
+use bevy::prelude::*;
 
 pub fn setup_camera(
-    mut commands: Commands, 
+    mut commands: Commands,
     camera_input: Res<CameraInput>,
-    camera_settings: Res<CameraSettings>
+    camera_settings: Res<CameraSettings>,
 ) {
     commands
         .spawn_bundle(PerspectiveCameraBundle {

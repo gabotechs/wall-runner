@@ -15,14 +15,24 @@ fn get_levels() -> level::LevelStructure {
     level::LevelStructure {
         sections: vec![
             level::LevelSection {
-                blocks: vec![shape::Box {
-                    min_x: 0.0,
-                    max_x: 5.0,
-                    min_y: 0.0,
-                    max_y: 1.0,
-                    min_z: 0.0,
-                    max_z: 30.0,
-                }],
+                blocks: vec![
+                    shape::Box {
+                        min_x: 0.0,
+                        max_x: 5.0,
+                        min_y: 0.0,
+                        max_y: 1.0,
+                        min_z: 0.0,
+                        max_z: 30.0,
+                    },
+                    // shape::Box {
+                    //     min_x: 0.0,
+                    //     max_x: 5.0,
+                    //     min_y: 3.0,
+                    //     max_y: 4.0,
+                    //     min_z: 40.0,
+                    //     max_z: 50.0,
+                    // },
+                ],
                 ..default()
             },
             level::LevelSection {
@@ -119,7 +129,6 @@ fn main() {
         .add_system(cursor_grab)
         .add_system(reset_player_if_fall)
         .add_startup_system(initial_grab_cursor)
-        // .add_plugin(RapierDebugRenderPlugin::default())
         .add_system_to_stage(
             CoreStage::PreUpdate,
             camera_player_sync::attach_camera_to_player,

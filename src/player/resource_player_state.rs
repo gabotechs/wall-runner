@@ -1,4 +1,4 @@
-use crate::player::pre_system_player_init_kinematics::PlayerKinematics;
+use crate::player::resource_player_kinematics::PlayerKinematics;
 use bevy::prelude::*;
 
 pub struct WallRunningState {

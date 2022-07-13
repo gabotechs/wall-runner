@@ -1,7 +1,7 @@
 use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
-use crate::player::pre_system_player_init_kinematics::PlayerKinematics;
 use crate::player::resource_player_input::PlayerInput;
+use crate::player::resource_player_kinematics::PlayerKinematics;
 use crate::utils::vec3_horizontal_vec2;
 use bevy::prelude::*;
 use std::borrow::BorrowMut;
@@ -51,6 +51,8 @@ pub fn move_player(
         kinematics.displacement.y += f * z + (1.0 - f) * player_state.kinematics.displacement.y;
         if keys.just_pressed(settings.jump) {
             kinematics.vertical_impulse += settings.jump_velocity;
+            player_state.is_in_ground = false;
+            player_state.ground_vote = 0;
         }
     } else if let Some(wall_running) = player_state.wall_running.borrow_mut() {
         // snap to wall if wall running, this is done by locking the velocity to the wall run direction.
@@ -72,10 +74,10 @@ pub fn move_player(
             let wall_run_vector = wall_run_displacement.normalize_or_zero();
             let jump_direction = (normal_force + wall_run_vector).normalize_or_zero();
             let jump_displacement = Vec2::new(
-                jump_direction.x + 0.9 * x / settings.speed,
-                jump_direction.y + 0.9 * z / settings.speed,
+                jump_direction.x + 0.7 * x / settings.speed,
+                jump_direction.y + 0.7 * z / settings.speed,
             )
-            .clamp_length(wall_run_speed, wall_run_speed);
+            .clamp_length_min(0.5 * wall_run_speed);
             info!("Jumping out of wall {:?}", jump_displacement);
             kinematics.displacement += jump_displacement;
             kinematics.vertical_impulse += settings.jump_velocity;
@@ -87,7 +89,7 @@ pub fn move_player(
     } else {
         // no control of the velocity in the air, the best we can do is force
         let v = Vec2::new(x, z).normalize_or_zero();
-        if v.x > 0.0 && v.y > 0.0 {
+        if v.length() > 0.0 {
             kinematics.force.x += settings.air_control * v.x;
             kinematics.force.z += settings.air_control * v.y;
         } else {

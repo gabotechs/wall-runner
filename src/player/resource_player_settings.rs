@@ -31,7 +31,7 @@ impl Default for PlayerSettings {
             size: 1.0,
             speed: 15.0,
             jump_velocity: 6.0,
-            air_control: 5.0,
+            air_control: 3.0,
             acceleration_factor: 0.1,
             initial_position: Vec3::default(),
             crouch_recharge_multiplier: 0.3,

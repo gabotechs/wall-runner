@@ -2,7 +2,6 @@ use super::Player;
 use crate::player::{PlayerSettings, PlayerState, WallRunningState};
 use crate::utils::vec3_horizontal_vec2;
 use bevy::prelude::*;
-use bevy_rapier3d::na::inf;
 use bevy_rapier3d::prelude::*;
 use std::borrow::BorrowMut;
 use std::f32::consts::PI;

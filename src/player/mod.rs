@@ -1,7 +1,6 @@
 mod entity_player;
 mod plugin_player;
 mod post_system_player_dump_kinematics;
-mod post_system_player_sync_state_position;
 mod pre_system_player_compute_contacts;
 mod pre_system_player_init_kinematics;
 mod resource_player_input;

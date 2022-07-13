@@ -1,5 +1,6 @@
 use crate::player::resource_player_kinematics::PlayerKinematics;
 use crate::player::{PlayerSettings, PlayerState};
+use crate::utils::vec3_horizontal_vec2;
 use bevy::prelude::*;
 
 pub fn player_crouch(
@@ -11,9 +12,10 @@ pub fn player_crouch(
 ) {
     if keys.pressed(settings.crouch) && player_state.is_in_ground {
         let speed_boost = settings.crouch_boost * player_state.crouch_state.charge;
-        let current_dir = player_state.kinematics.displacement.normalize_or_zero();
-        kinematics.displacement.x += current_dir.x * speed_boost;
-        kinematics.displacement.y += current_dir.y * speed_boost;
+        let current_dir = vec3_horizontal_vec2(player_state.velocity.linvel).normalize_or_zero();
+        kinematics
+            .displacement
+            .add_velocity(current_dir * speed_boost);
         if player_state.crouch_state.charge <= 0.0 {
             player_state.crouch_state.charge = 0.0;
         } else {

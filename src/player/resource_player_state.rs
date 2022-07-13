@@ -1,5 +1,6 @@
 use crate::player::resource_player_kinematics::PlayerKinematics;
 use bevy::prelude::*;
+use bevy_rapier3d::dynamics::Velocity;
 
 pub struct WallRunningState {
     pub just_started: bool,
@@ -14,7 +15,7 @@ pub struct CrouchState {
 }
 
 pub struct PlayerState {
-    pub kinematics: PlayerKinematics,
+    pub velocity: Velocity,
     pub position: Vec3,
     pub ground_vote: u8,
     pub is_in_ground: bool,
@@ -35,7 +36,7 @@ impl Default for PlayerState {
         PlayerState {
             head_offset: 1.0,
             position: Vec3::default(),
-            kinematics: PlayerKinematics::default(),
+            velocity: Velocity::default(),
             is_in_ground: false,
             ground_vote: 0,
             wall_run_vote: 0,

@@ -79,7 +79,7 @@ pub fn player_contacts(
         const ANGLE_EPSILON: f32 = 0.01;
         let tangent_direction = nearest_with_angle(
             vec3_horizontal_vec2(normal_force),
-            player_state.kinematics.displacement,
+            vec3_horizontal_vec2(player_state.velocity.linvel),
             PI / 2.0 + ANGLE_EPSILON,
         );
         info!("start wall run,  direction: {:?}", tangent_direction);

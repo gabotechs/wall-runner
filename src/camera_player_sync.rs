@@ -1,3 +1,4 @@
+use crate::utils::vec3_horizontal_vec2;
 use crate::{camera, player};
 use bevy::prelude::*;
 
@@ -16,7 +17,7 @@ pub fn attach_camera_to_player(
     camera_input.position_offset.z = camera_state.yaw.cos() * HEAD_HORIZONTAL_OFFSET;
     if let Some(wall_running) = &player_state.wall_running {
         let wall_vector = Vec2::new(wall_running.normal_force.x, wall_running.normal_force.z);
-        let move_vector = player_state.kinematics.displacement;
+        let move_vector = vec3_horizontal_vec2(player_state.velocity.linvel);
         let angle = wall_vector.angle_between(move_vector);
         if !angle.is_nan() {
             camera_input.tilt_angle =

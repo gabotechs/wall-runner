@@ -1,7 +1,7 @@
 use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
 use crate::player::resource_player_input::PlayerInput;
-use crate::player::resource_player_kinematics::PlayerKinematics;
+use crate::player::resource_player_kinematics::{HorizontalDisplacement, PlayerKinematics};
 use crate::utils::vec3_horizontal_vec2;
 use bevy::prelude::*;
 use std::borrow::BorrowMut;
@@ -44,11 +44,13 @@ pub fn move_player(
     }
     let f = settings.acceleration_factor;
     let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
-    let prev_frame_displacement = player_state.kinematics.displacement;
+    let prev_frame_displacement = vec3_horizontal_vec2(player_state.velocity.linvel);
     if player_state.is_in_ground {
         // set the velocity
-        kinematics.displacement.x += f * x + (1.0 - f) * player_state.kinematics.displacement.x;
-        kinematics.displacement.y += f * z + (1.0 - f) * player_state.kinematics.displacement.y;
+        kinematics.displacement.add_velocity(Vec2::new(
+            f * x + (1.0 - f) * prev_frame_displacement.x,
+            f * z + (1.0 - f) * prev_frame_displacement.y,
+        ));
         if keys.just_pressed(settings.jump) {
             kinematics.vertical_impulse += settings.jump_velocity;
             player_state.is_in_ground = false;
@@ -77,23 +79,22 @@ pub fn move_player(
                 jump_direction.x + 0.7 * x / settings.speed,
                 jump_direction.y + 0.7 * z / settings.speed,
             )
-            .clamp_length_min(0.5 * wall_run_speed);
+            .clamp_length_min(0.75 * wall_run_speed);
             info!("Jumping out of wall {:?}", jump_displacement);
-            kinematics.displacement += jump_displacement;
+            kinematics.displacement.add_velocity(jump_displacement);
             kinematics.vertical_impulse += settings.jump_velocity;
             player_state.wall_run_vote = 0;
             player_state.wall_running = None;
         } else {
-            kinematics.displacement += wall_run_displacement.clamp_length_min(wall_run_speed);
+            kinematics
+                .displacement
+                .add_velocity(wall_run_displacement.clamp_length_min(wall_run_speed))
         }
     } else {
         // no control of the velocity in the air, the best we can do is force
         let v = Vec2::new(x, z).normalize_or_zero();
         if v.length() > 0.0 {
-            kinematics.force.x += settings.air_control * v.x;
-            kinematics.force.z += settings.air_control * v.y;
-        } else {
-            kinematics.displacement = prev_frame_displacement;
+            kinematics.displacement.add_force(v * settings.air_control);
         }
     }
 }

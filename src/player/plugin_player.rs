@@ -2,7 +2,6 @@ use super::pre_system_player_compute_contacts::player_contacts;
 use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
 use crate::player::post_system_player_dump_kinematics::player_dump_kinematics;
-use crate::player::post_system_player_sync_state_position::player_sync_state_position;
 use crate::player::pre_system_player_init_kinematics::player_reset_kinematics;
 use crate::player::resource_player_input::PlayerInput;
 use crate::player::resource_player_kinematics::PlayerKinematics;
@@ -32,7 +31,6 @@ impl Plugin for PlayerPlugin {
             .add_system(move_player)
             .add_system(player_crouch)
             .add_system(player_audio)
-            .add_system_to_stage(CoreStage::PostUpdate, player_sync_state_position)
             .add_system_to_stage(CoreStage::PostUpdate, player_dump_kinematics);
     }
 }

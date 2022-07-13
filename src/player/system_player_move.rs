@@ -2,6 +2,7 @@ use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
 use crate::player::pre_system_player_init_kinematics::PlayerKinematics;
 use crate::player::resource_player_input::PlayerInput;
+use crate::utils::vec3_horizontal_vec2;
 use bevy::prelude::*;
 use std::borrow::BorrowMut;
 use std::collections::HashSet;
@@ -59,17 +60,20 @@ pub fn move_player(
         // into the wall. By registering the first speed, we force the speed to be the first one
         // registered during the wall run
         kinematics.gravity = settings.wall_run_gravity;
-        let wall_run_velocity = prev_frame_displacement.project_onto(wall_running.direction);
+        let wall_run_displacement = prev_frame_displacement.project_onto(wall_running.direction);
         let wall_run_speed = if let Some(speed) = wall_running.speed {
             speed
         } else {
-            wall_running.speed = Some(wall_run_velocity.length());
+            wall_running.speed = Some(wall_run_displacement.length());
             wall_running.speed.unwrap()
         };
         if keys.just_pressed(settings.jump) {
+            let normal_force = vec3_horizontal_vec2(wall_running.normal_force);
+            let wall_run_vector = wall_run_displacement.normalize_or_zero();
+            let jump_direction = (normal_force + wall_run_vector).normalize_or_zero();
             let jump_displacement = Vec2::new(
-                wall_running.normal_force.x + 5.0 * x / settings.speed,
-                wall_running.normal_force.z + 5.0 * z / settings.speed,
+                jump_direction.x + 0.9 * x / settings.speed,
+                jump_direction.y + 0.9 * z / settings.speed,
             )
             .clamp_length(wall_run_speed, wall_run_speed);
             info!("Jumping out of wall {:?}", jump_displacement);
@@ -78,7 +82,7 @@ pub fn move_player(
             player_state.wall_run_vote = 0;
             player_state.wall_running = None;
         } else {
-            kinematics.displacement += wall_run_velocity.clamp_length_min(wall_run_speed);
+            kinematics.displacement += wall_run_displacement.clamp_length_min(wall_run_speed);
         }
     } else {
         // no control of the velocity in the air, the best we can do is force

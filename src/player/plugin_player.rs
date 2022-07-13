@@ -5,7 +5,6 @@ use crate::player::post_system_player_dump_kinematics::player_dump_kinematics;
 use crate::player::post_system_player_sync_state_position::player_sync_state_position;
 use crate::player::pre_system_player_apply_input::player_apply_input;
 use crate::player::pre_system_player_init_kinematics::player_reset_kinematics;
-use crate::player::pre_system_player_load_physics_into_state::player_load_physics_into_state;
 use crate::player::resource_player_input::PlayerInput;
 use crate::player::resource_player_kinematics::PlayerKinematics;
 use crate::player::startup_system_player_setup::setup_player;
@@ -29,7 +28,6 @@ impl Plugin for PlayerPlugin {
             .add_audio_channel::<LandAudio>()
             .add_startup_system(setup_player)
             .add_system_to_stage(CoreStage::PreUpdate, reset_player)
-            .add_system_to_stage(CoreStage::PreUpdate, player_load_physics_into_state)
             .add_system_to_stage(CoreStage::PreUpdate, player_contacts)
             .add_system_to_stage(CoreStage::PreUpdate, player_reset_kinematics)
             .add_system_to_stage(CoreStage::PreUpdate, player_apply_input)

@@ -9,16 +9,17 @@ pub fn setup_player(mut commands: Commands, player_settings: Res<PlayerSettings>
             player_settings.initial_position.y,
             player_settings.initial_position.z,
         )))
-        .insert(Collider::capsule_y(
+        .insert(Collider::round_cylinder(
             player_settings.size,
             player_settings.size * 0.25,
+            player_settings.size * 0.1,
         ))
         .insert(Velocity::default())
         .insert(RigidBody::Dynamic)
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Friction {
-            coefficient: 0.0,
+            coefficient: 0.1,
             combine_rule: CoefficientCombineRule::Min,
         })
         .insert(ColliderMassProperties::Density(1.0))

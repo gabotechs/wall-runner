@@ -37,7 +37,7 @@ impl Default for PlayerSettings {
             crouch_recharge_multiplier: 0.3,
             crouch_discharge_multiplier: 1.0,
             ground_votes: 8,
-            ground_up_vote: 4,
+            ground_up_vote: 8,
             ground_down_vote: 1,
             wall_run_gravity: 0.3,
             wall_run_votes: 4,

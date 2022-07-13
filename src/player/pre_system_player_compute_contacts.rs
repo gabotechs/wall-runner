@@ -2,6 +2,7 @@ use super::Player;
 use crate::player::{PlayerSettings, PlayerState, WallRunningState};
 use crate::utils::vec3_horizontal_vec2;
 use bevy::prelude::*;
+use bevy_rapier3d::na::inf;
 use bevy_rapier3d::prelude::*;
 use std::borrow::BorrowMut;
 use std::f32::consts::PI;
@@ -48,11 +49,25 @@ pub fn player_contacts(
     let has_vertical_forces = normal_force.y > 0.9;
     let has_horizontal_forces = (normal_force.x.powi(2) + normal_force.z.powi(2)).sqrt() > 0.9;
     // if the manifold is positive and vertical, then we are on the ground
-    player_state.is_in_ground = false;
-    if has_vertical_forces {
-        player_state.is_in_ground = true;
-        // if the sum vector of all the normal forces has mainly an horizontal component, then we are wall running
-    } else if has_horizontal_forces && player_state.wall_running.is_none() {
+    if has_vertical_forces && !player_state.is_in_ground {
+        if player_state.ground_vote < settings.ground_votes {
+            player_state.ground_vote += settings.ground_up_vote;
+            info!("[+] vote ground {}", player_state.ground_vote);
+        } else {
+            info!("in ground");
+            player_state.is_in_ground = true;
+        }
+    } else if !has_vertical_forces && player_state.is_in_ground {
+        if player_state.ground_vote > 0 {
+            player_state.ground_vote -= settings.ground_down_vote;
+            info!("[-] vote ground {}", player_state.ground_vote);
+        } else {
+            info!("not in ground");
+            player_state.is_in_ground = false;
+        }
+    }
+    // if the sum vector of all the normal forces has mainly an horizontal component, then we are wall running
+    if has_horizontal_forces && player_state.wall_running.is_none() {
         if player_state.wall_run_vote < settings.wall_run_votes {
             player_state.wall_run_vote += settings.wall_run_up_vote;
             info!("[+] vote wall run {}", player_state.wall_run_vote);

@@ -16,6 +16,7 @@ pub struct CrouchState {
 pub struct PlayerState {
     pub kinematics: PlayerKinematics,
     pub position: Vec3,
+    pub ground_vote: u8,
     pub is_in_ground: bool,
     pub wall_run_vote: u8,
     pub wall_running: Option<WallRunningState>,
@@ -36,6 +37,7 @@ impl Default for PlayerState {
             position: Vec3::default(),
             kinematics: PlayerKinematics::default(),
             is_in_ground: false,
+            ground_vote: 0,
             wall_run_vote: 0,
             wall_running: None,
             crouch_state: CrouchState {

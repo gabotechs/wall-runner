@@ -15,8 +15,8 @@ impl HorizontalDisplacement {
             None => {
                 *self = Velocity(v);
             }
-            Velocity(mut prev_v) => {
-                prev_v += v;
+            Velocity(prev_v) => {
+                *prev_v += v;
             }
             Force(_) => {
                 error!("Tried to add velocity to a kinematic displacement of type Force");
@@ -29,8 +29,8 @@ impl HorizontalDisplacement {
             None => {
                 *self = Force(v);
             }
-            Force(mut prev_v) => {
-                prev_v += v;
+            Force(prev_v) => {
+                *prev_v += v;
             }
             Velocity(_) => {
                 error!("Tried to add a force to a kinematic displacement of type Velocity");

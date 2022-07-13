@@ -5,7 +5,7 @@ use bevy_rapier3d::dynamics::GravityScale;
 use bevy_rapier3d::prelude::{ExternalForce, Velocity};
 
 pub fn player_dump_kinematics(
-    kinematics: Res<PlayerKinematics>,
+    mut kinematics: ResMut<PlayerKinematics>,
     mut player_state: ResMut<PlayerState>,
     mut player_query: Query<
         (
@@ -28,6 +28,7 @@ pub fn player_dump_kinematics(
                 // velocity controlled displacement, we decide it
                 velocity.linvel.x = v.x;
                 velocity.linvel.z = v.y;
+                force.force = Vec3::default();
             }
             HorizontalDisplacement::None => {
                 // do nothing
@@ -39,4 +40,5 @@ pub fn player_dump_kinematics(
         player_state.velocity = *velocity;
         player_state.position = transform.translation;
     }
+    *kinematics = PlayerKinematics::default();
 }

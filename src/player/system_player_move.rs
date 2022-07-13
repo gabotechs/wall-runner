@@ -9,7 +9,7 @@ use std::collections::HashSet;
 
 pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> (f32, f32) {
     let frontal_speed = settings.speed;
-    let lateral_speed = settings.speed * 0.5;
+    let lateral_speed = settings.speed * 0.25;
     let mut x = 0f32;
     let mut z = 0f32;
     if keys.contains(&settings.forward) {
@@ -42,27 +42,18 @@ pub fn move_player(
     for key in keys.get_pressed() {
         keys_set.insert(*key);
     }
-    let f = settings.acceleration_factor;
     let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
     let prev_frame_displacement = vec3_horizontal_vec2(player_state.velocity.linvel);
     if player_state.is_in_ground {
         // set the velocity
-        kinematics.displacement.add_velocity(Vec2::new(
-            f * x + (1.0 - f) * prev_frame_displacement.x,
-            f * z + (1.0 - f) * prev_frame_displacement.y,
-        ));
+        kinematics.displacement.add_velocity(Vec2::new(x, z));
         if keys.just_pressed(settings.jump) {
             kinematics.vertical_impulse += settings.jump_velocity;
             player_state.is_in_ground = false;
             player_state.ground_vote = 0;
         }
     } else if let Some(wall_running) = player_state.wall_running.borrow_mut() {
-        // snap to wall if wall running, this is done by locking the velocity to the wall run direction.
-        // The current running velocity must be projected onto the wall run direction, but this last
-        // vector is slightly rotated towards the wall, so each frame the velocity is projected, even
-        // if we clamp_length_min it, rapier is going to truncate it because we cannot insert ourselves
-        // into the wall. By registering the first speed, we force the speed to be the first one
-        // registered during the wall run
+        // snap to wall if wall running
         kinematics.gravity = settings.wall_run_gravity;
         let wall_run_displacement = prev_frame_displacement.project_onto(wall_running.direction);
         let wall_run_speed = if let Some(speed) = wall_running.speed {
@@ -93,8 +84,6 @@ pub fn move_player(
     } else {
         // no control of the velocity in the air, the best we can do is force
         let v = Vec2::new(x, z).normalize_or_zero();
-        if v.length() > 0.0 {
-            kinematics.displacement.add_force(v * settings.air_control);
-        }
+        kinematics.displacement.add_force(v * settings.air_control);
     }
 }

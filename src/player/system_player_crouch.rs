@@ -17,16 +17,16 @@ pub fn player_crouch(
         if player_state.crouch_state.charge <= 0.0 {
             player_state.crouch_state.charge = 0.0;
         } else {
-            player_state.crouch_state.charge -=
-                settings.crouch_discharge_multiplier * time.delta().as_secs_f32();
+            let sub_charge = settings.crouch_discharge_multiplier * time.delta().as_secs_f32();
+            player_state.crouch_state.charge -= sub_charge;
         }
         player_state.head_offset = -0.5;
     } else {
         if player_state.crouch_state.charge >= 1.0 {
             player_state.crouch_state.charge = 1.0;
         } else {
-            player_state.crouch_state.charge +=
-                settings.crouch_recharge_multiplier * time.delta().as_secs_f32();
+            let sum_charge = settings.crouch_recharge_multiplier * time.delta().as_secs_f32();
+            player_state.crouch_state.charge += sum_charge;
         }
         player_state.head_offset = 1.0;
     }

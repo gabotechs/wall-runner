@@ -1,7 +1,7 @@
 use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
 use crate::player::resource_player_input::PlayerInput;
-use crate::player::resource_player_kinematics::{HorizontalDisplacement, PlayerKinematics};
+use crate::player::resource_player_kinematics::PlayerKinematics;
 use crate::utils::vec3_horizontal_vec2;
 use bevy::prelude::*;
 use std::borrow::BorrowMut;

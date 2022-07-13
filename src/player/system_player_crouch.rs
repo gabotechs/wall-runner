@@ -1,4 +1,4 @@
-use crate::player::pre_system_player_kinematics::PlayerKinematics;
+use crate::player::pre_system_player_init_kinematics::PlayerKinematics;
 use crate::player::{PlayerSettings, PlayerState};
 use bevy::prelude::*;
 
@@ -14,7 +14,12 @@ pub fn player_crouch(
         let current_dir = player_state.kinematics.displacement.normalize_or_zero();
         kinematics.displacement.x += current_dir.x * speed_boost;
         kinematics.displacement.y += current_dir.y * speed_boost;
-        player_state.crouch_state.charge = 0.0;
+        if player_state.crouch_state.charge <= 0.0 {
+            player_state.crouch_state.charge = 0.0;
+        } else {
+            player_state.crouch_state.charge -=
+                settings.crouch_discharge_multiplier * time.delta().as_secs_f32();
+        }
         player_state.head_offset = -0.5;
     } else {
         if player_state.crouch_state.charge >= 1.0 {

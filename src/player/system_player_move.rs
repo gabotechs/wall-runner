@@ -1,6 +1,6 @@
 use super::resource_player_settings::PlayerSettings;
 use super::resource_player_state::PlayerState;
-use crate::player::pre_system_player_kinematics::PlayerKinematics;
+use crate::player::pre_system_player_init_kinematics::PlayerKinematics;
 use crate::player::resource_player_input::PlayerInput;
 use bevy::prelude::*;
 use std::borrow::BorrowMut;
@@ -43,7 +43,7 @@ pub fn move_player(
     }
     let f = settings.acceleration_factor;
     let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
-    let displacement = player_state.kinematics.displacement;
+    let prev_frame_displacement = player_state.kinematics.displacement;
     if player_state.is_in_ground {
         // set the velocity
         kinematics.displacement.x += f * x + (1.0 - f) * player_state.kinematics.displacement.x;
@@ -58,7 +58,8 @@ pub fn move_player(
         // if we clamp_length_min it, rapier is going to truncate it because we cannot insert ourselves
         // into the wall. By registering the first speed, we force the speed to be the first one
         // registered during the wall run
-        let wall_run_velocity = displacement.project_onto(wall_running.direction);
+        kinematics.gravity = settings.wall_run_gravity;
+        let wall_run_velocity = prev_frame_displacement.project_onto(wall_running.direction);
         let wall_run_speed = if let Some(speed) = wall_running.speed {
             speed
         } else {
@@ -82,8 +83,11 @@ pub fn move_player(
     } else {
         // no control of the velocity in the air, the best we can do is force
         let v = Vec2::new(x, z).normalize_or_zero();
-        kinematics.displacement = player_state.kinematics.displacement;
-        kinematics.force.x += settings.air_control * v.x;
-        kinematics.force.z += settings.air_control * v.y;
+        if v.x > 0.0 && v.y > 0.0 {
+            kinematics.force.x += settings.air_control * v.x;
+            kinematics.force.z += settings.air_control * v.y;
+        } else {
+            kinematics.displacement = prev_frame_displacement;
+        }
     }
 }

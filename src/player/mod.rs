@@ -1,17 +1,17 @@
 mod entity_player;
 mod plugin_player;
-mod post_system_player_apply_input;
-mod post_system_player_kinematics;
+mod post_system_player_dump_kinematics;
 mod post_system_player_sync_state_position;
-mod pre_system_player_contacts;
-mod pre_system_player_kinematics;
+mod pre_system_player_apply_input;
+mod pre_system_player_compute_contacts;
+mod pre_system_player_init_kinematics;
+mod pre_system_player_load_physics_into_state;
 mod resource_player_input;
 mod resource_player_settings;
 mod resource_player_state;
 mod startup_system_player_setup;
 mod system_player_audio;
 mod system_player_crouch;
-mod system_player_gravity;
 mod system_player_move;
 mod system_player_reset;
 

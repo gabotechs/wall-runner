@@ -1,14 +1,28 @@
 use super::Player;
 use crate::player::{PlayerSettings, PlayerState, WallRunningState};
+use crate::utils::vec3_horizontal_vec2;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use std::borrow::BorrowMut;
+use std::f32::consts::PI;
 
 fn rotate(v: Vec2, angle: f32) -> Vec2 {
     Vec2::new(
         v.x * angle.cos() - v.y * angle.sin(),
         v.x * angle.sin() + v.y * angle.cos(),
     )
+}
+
+fn nearest_with_angle(v: Vec2, other: Vec2, angle: f32) -> Vec2 {
+    // clockwise
+    let v1 = rotate(v, angle);
+    // counter-clockwise
+    let v2 = rotate(v, -angle);
+    if v1.angle_between(other).abs() < v2.angle_between(other).abs() {
+        v1
+    } else {
+        v2
+    }
 }
 
 pub fn player_contacts(
@@ -40,23 +54,16 @@ pub fn player_contacts(
         // if the sum vector of all the normal forces has mainly an horizontal component, then we are wall running
     } else if has_horizontal_forces && player_state.wall_running.is_none() {
         if player_state.wall_run_vote < settings.wall_run_votes {
-            player_state.wall_run_vote += 1;
+            player_state.wall_run_vote += settings.wall_run_up_vote;
             info!("[+] vote wall run {}", player_state.wall_run_vote);
             return;
         }
-        let current_direction = player_state.kinematics.displacement;
-        // clockwise
-        let v1 = Vec2::new(-normal_force.z, normal_force.x);
-        // counter-clockwise
-        let v2 = Vec2::new(normal_force.z, -normal_force.x);
-        const ANGLE_EPSILON: f32 = 0.1;
-        let tangent_direction = if v1.angle_between(current_direction).abs()
-            < v2.angle_between(current_direction).abs()
-        {
-            rotate(v1, ANGLE_EPSILON)
-        } else {
-            rotate(v2, -ANGLE_EPSILON)
-        };
+        const ANGLE_EPSILON: f32 = 0.01;
+        let tangent_direction = nearest_with_angle(
+            vec3_horizontal_vec2(normal_force),
+            player_state.kinematics.displacement,
+            PI / 2.0 + ANGLE_EPSILON,
+        );
         info!("start wall run,  direction: {:?}", tangent_direction);
         player_state.wall_running = Some(WallRunningState {
             speed: None,
@@ -66,7 +73,7 @@ pub fn player_contacts(
         });
     } else if !has_horizontal_forces && player_state.wall_running.is_some() {
         if player_state.wall_run_vote > 0 {
-            player_state.wall_run_vote -= 2;
+            player_state.wall_run_vote -= settings.wall_run_down_vote;
             info!("[-] vote wall run {}", player_state.wall_run_vote);
             return;
         }
@@ -79,7 +86,7 @@ pub fn player_contacts(
 
 #[cfg(test)]
 mod tests {
-    use crate::player::pre_system_player_contacts::rotate;
+    use crate::player::pre_system_player_compute_contacts::{nearest_with_angle, rotate};
     use crate::Vec2;
     use std::f32::consts::PI;
 
@@ -109,5 +116,14 @@ mod tests {
         let rotated = rotate(input, -PI / 2.0);
         assert_almost_eq!(rotated.x, 0.0);
         assert_almost_eq!(rotated.y, -1.0);
+    }
+
+    #[test]
+    fn test_nearest_with_angle() {
+        let input = Vec2::new(1.0, 0.0);
+        let base = Vec2::new(-(1.0_f32.sqrt()), 1.0_f32.sqrt());
+        let result = nearest_with_angle(input, base, PI / 2.0);
+        assert_almost_eq!(result.x, 0.0);
+        assert_almost_eq!(result.y, 1.0);
     }
 }

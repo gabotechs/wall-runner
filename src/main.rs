@@ -5,6 +5,7 @@ mod camera_player_sync;
 mod level;
 mod player;
 mod scene;
+mod utils;
 mod window;
 
 use bevy::prelude::*;

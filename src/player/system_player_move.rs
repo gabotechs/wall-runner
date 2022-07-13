@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use std::borrow::BorrowMut;
 use std::collections::HashSet;
 
-pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> (f32, f32) {
+pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> Vec2 {
     let frontal_speed = settings.speed;
     let lateral_speed = settings.speed * 0.25;
     let mut x = 0f32;
@@ -28,7 +28,7 @@ pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f
         x += lateral_speed * angle.cos();
         z -= lateral_speed * angle.sin();
     }
-    (x, z)
+    Vec2::new(x, z)
 }
 
 pub fn move_player(
@@ -42,11 +42,11 @@ pub fn move_player(
     for key in keys.get_pressed() {
         keys_set.insert(*key);
     }
-    let (x, z) = get_move_vec(&settings, &keys_set, player_input.y_angle);
-    let prev_frame_displacement = vec3_horizontal_vec2(player_state.velocity.linvel);
+    let move_vector = get_move_vec(&settings, &keys_set, player_input.y_angle);
+    let prev_frame_velocity = vec3_horizontal_vec2(player_state.velocity.linvel);
     if player_state.is_in_ground {
         // set the velocity
-        kinematics.displacement.add_velocity(Vec2::new(x, z));
+        kinematics.displacement.add_velocity(move_vector);
         if keys.just_pressed(settings.jump) {
             kinematics.vertical_impulse += settings.jump_velocity;
             player_state.is_in_ground = false;
@@ -55,24 +55,20 @@ pub fn move_player(
     } else if let Some(wall_running) = player_state.wall_running.borrow_mut() {
         // snap to wall if wall running
         kinematics.gravity = settings.wall_run_gravity;
-        let wall_run_displacement = prev_frame_displacement.project_onto(wall_running.direction);
+        let wall_run_displacement = prev_frame_velocity.project_onto(wall_running.direction);
         let wall_run_speed = if let Some(speed) = wall_running.speed {
             speed
         } else {
-            wall_running.speed = Some(wall_run_displacement.length());
+            wall_running.speed = Some(prev_frame_velocity.length());
             wall_running.speed.unwrap()
         };
         if keys.just_pressed(settings.jump) {
             let normal_force = vec3_horizontal_vec2(wall_running.normal_force);
-            let wall_run_vector = wall_run_displacement.normalize_or_zero();
-            let jump_direction = (normal_force + wall_run_vector).normalize_or_zero();
-            let jump_displacement = Vec2::new(
-                jump_direction.x + 0.7 * x / settings.speed,
-                jump_direction.y + 0.7 * z / settings.speed,
-            )
-            .clamp_length_min(0.75 * wall_run_speed);
-            info!("Jumping out of wall {:?}", jump_displacement);
-            kinematics.displacement.add_velocity(jump_displacement);
+            let scaled_normal = (normal_force * wall_run_speed).clamp_length_min(settings.speed);
+            let proj_move_vector = move_vector.project_onto(wall_running.direction);
+            let jump_velocity = 0.5 * scaled_normal + 0.75 * proj_move_vector;
+            info!("Jumping out of wall {:?}", jump_velocity);
+            kinematics.displacement.add_velocity(jump_velocity);
             kinematics.vertical_impulse += settings.jump_velocity;
             player_state.wall_run_vote = 0;
             player_state.wall_running = None;
@@ -83,7 +79,8 @@ pub fn move_player(
         }
     } else {
         // no control of the velocity in the air, the best we can do is force
-        let v = Vec2::new(x, z).normalize_or_zero();
-        kinematics.displacement.add_force(v * settings.air_control);
+        kinematics
+            .displacement
+            .add_force(move_vector.normalize_or_zero() * settings.air_control);
     }
 }

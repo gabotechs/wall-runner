@@ -23,7 +23,7 @@ fn get_levels() -> level::LevelStructure {
                         min_y: 0.0,
                         max_y: 1.0,
                         min_z: 0.0,
-                        max_z: 30.0,
+                        max_z: 10.0,
                     },
                     // shape::Box {
                     //     min_x: 0.0,

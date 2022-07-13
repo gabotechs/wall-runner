@@ -56,6 +56,8 @@ pub fn player_contacts(
             info!("in ground");
             player_state.is_in_ground = true;
         }
+    } else if has_vertical_forces && player_state.is_in_ground {
+        player_state.ground_vote = settings.ground_votes;
     } else if !has_vertical_forces && player_state.is_in_ground {
         if player_state.ground_vote > 0 {
             player_state.ground_vote -= settings.ground_down_vote;
@@ -64,6 +66,8 @@ pub fn player_contacts(
             info!("not in ground");
             player_state.is_in_ground = false;
         }
+    } else if !has_vertical_forces && !player_state.is_in_ground {
+        player_state.ground_vote = 0;
     }
     // if the sum vector of all the normal forces has mainly an horizontal component, then we are wall running
     if has_horizontal_forces && player_state.wall_running.is_none() {

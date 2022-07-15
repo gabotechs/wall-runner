@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use std::borrow::BorrowMut;
 use std::collections::HashSet;
 
-pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> Vec2 {
+fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f32) -> Vec2 {
     let frontal_speed = settings.speed;
     let lateral_speed = settings.speed * 0.25;
     let mut x = 0f32;
@@ -29,6 +29,18 @@ pub fn get_move_vec(settings: &PlayerSettings, keys: &HashSet<KeyCode>, angle: f
         z -= lateral_speed * angle.sin();
     }
     Vec2::new(x, z)
+}
+
+fn jump_out_of_wall(
+    move_vector: Vec2,
+    normal_force: Vec2,
+    wall_run_velocity: Vec2,
+    jump_speed: f32,
+) -> Vec2 {
+    let normal_force = normal_force.clamp_length(jump_speed, wall_run_velocity.length());
+    let scaled_normal = normal_force + wall_run_velocity;
+    let proj_move_vector = move_vector.project_onto(wall_run_velocity);
+    (scaled_normal + proj_move_vector * 0.5) / 2.0
 }
 
 pub fn move_player(
@@ -56,23 +68,25 @@ pub fn move_player(
         // snap to wall if wall running
         kinematics.gravity = settings.wall_run_gravity;
         let wall_run_displacement = prev_frame_velocity.project_onto(wall_running.direction);
-        let wall_run_speed = if let Some(speed) = wall_running.speed {
-            speed
-        } else {
-            wall_running.speed = Some(prev_frame_velocity.length());
-            wall_running.speed.unwrap()
-        };
         if keys.just_pressed(settings.jump) {
-            let normal_force = vec3_horizontal_vec2(wall_running.normal_force);
-            let scaled_normal = (normal_force * wall_run_speed).clamp_length_min(settings.speed);
-            let proj_move_vector = move_vector.project_onto(wall_running.direction);
-            let jump_velocity = 0.5 * scaled_normal + 0.75 * proj_move_vector;
+            let jump_velocity = jump_out_of_wall(
+                move_vector,
+                vec3_horizontal_vec2(wall_running.normal_force),
+                wall_run_displacement,
+                settings.jump_velocity,
+            );
             info!("Jumping out of wall {:?}", jump_velocity);
             kinematics.displacement.add_velocity(jump_velocity);
             kinematics.vertical_impulse += settings.jump_velocity;
             player_state.wall_run_vote = 0;
             player_state.wall_running = None;
         } else {
+            let wall_run_speed = if let Some(speed) = wall_running.speed {
+                speed
+            } else {
+                wall_running.speed = Some(prev_frame_velocity.length());
+                wall_running.speed.unwrap()
+            };
             kinematics
                 .displacement
                 .add_velocity(wall_run_displacement.clamp_length_min(wall_run_speed))

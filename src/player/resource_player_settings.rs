@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 pub struct PlayerSettings {
-    pub size: f32,
+    pub height: f32,
+    pub width: f32,
     pub speed: f32,
     pub jump_velocity: f32,
     pub air_control: f32,
@@ -28,7 +29,8 @@ pub struct PlayerSettings {
 impl Default for PlayerSettings {
     fn default() -> Self {
         PlayerSettings {
-            size: 1.0,
+            height: 2.0,
+            width: 0.3,
             speed: 15.0,
             jump_velocity: 6.0,
             air_control: 1.5,

@@ -10,9 +10,9 @@ pub fn setup_player(mut commands: Commands, player_settings: Res<PlayerSettings>
             player_settings.initial_position.z,
         )))
         .insert(Collider::round_cylinder(
-            player_settings.size,
-            player_settings.size * 0.25,
-            player_settings.size * 0.1,
+            player_settings.height * 0.5,
+            player_settings.width * 0.5,
+            player_settings.width * 0.1,
         ))
         .insert(Velocity::default())
         .insert(RigidBody::Dynamic)

@@ -44,6 +44,16 @@ pub fn player_contacts(
                 normal_forces.push(manifold.normal() * direction);
             }
         }
+        player_state.something_above = rapier_context
+            .cast_ray(
+                player_state.position,
+                Vec3::new(0.0, 1.0, 0.0),
+                (0.5 + 0.25) * settings.height,
+                true,
+                InteractionGroups::all(),
+                Some(&|e| e != entity),
+            )
+            .is_some();
     }
     // if the manifold is positive and vertical, then we are on the ground
     let mut has_vertical_forces = false;
@@ -84,29 +94,29 @@ pub fn player_contacts(
         if player_state.wall_run_vote < settings.wall_run_votes {
             player_state.wall_run_vote += settings.wall_run_up_vote;
             info!("[+] vote wall run {}", player_state.wall_run_vote);
-            return;
+        } else {
+            const ANGLE_EPSILON: f32 = 0.03;
+            let tangent_direction = nearest_with_angle(
+                vec3_horizontal_vec2(horizontal_force.unwrap()),
+                vec3_horizontal_vec2(player_state.velocity.linvel),
+                PI / 2.0 + ANGLE_EPSILON,
+            );
+            info!("start wall run,  direction: {:?}", tangent_direction);
+            player_state.wall_running = Some(WallRunningState {
+                speed: None,
+                just_started: true,
+                normal_force: horizontal_force.unwrap(),
+                direction: tangent_direction.normalize_or_zero(),
+            });
         }
-        const ANGLE_EPSILON: f32 = 0.03;
-        let tangent_direction = nearest_with_angle(
-            vec3_horizontal_vec2(horizontal_force.unwrap()),
-            vec3_horizontal_vec2(player_state.velocity.linvel),
-            PI / 2.0 + ANGLE_EPSILON,
-        );
-        info!("start wall run,  direction: {:?}", tangent_direction);
-        player_state.wall_running = Some(WallRunningState {
-            speed: None,
-            just_started: true,
-            normal_force: horizontal_force.unwrap(),
-            direction: tangent_direction.normalize_or_zero(),
-        });
     } else if !can_be_wall_running && player_state.wall_running.is_some() {
         if player_state.wall_run_vote > 0 {
             player_state.wall_run_vote -= settings.wall_run_down_vote;
             info!("[-] vote wall run {}", player_state.wall_run_vote);
-            return;
+        } else {
+            info!("stop wall run");
+            player_state.wall_running = None;
         }
-        info!("stop wall run");
-        player_state.wall_running = None;
     } else if let Some(wall_running) = player_state.wall_running.borrow_mut() {
         wall_running.just_started = false;
     }

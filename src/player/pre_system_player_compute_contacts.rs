@@ -45,11 +45,12 @@ pub fn player_contacts(
             }
         }
         player_state.something_above = rapier_context
-            .cast_ray(
+            .cast_shape(
                 player_state.position,
-                Vec3::new(0.0, 1.0, 0.0),
+                Rot::default(),
+                Vec3::Y,
+                &Collider::ball(settings.width * 0.6),
                 (0.5 + 0.25) * settings.height,
-                true,
                 InteractionGroups::all(),
                 Some(&|e| e != entity),
             )

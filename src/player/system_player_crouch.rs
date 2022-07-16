@@ -1,17 +1,20 @@
+use crate::input::InputEvent;
 use crate::player::resource_player_kinematics::PlayerKinematics;
 use crate::player::{Player, PlayerSettings, PlayerState};
-use crate::utils::vec3_horizontal_vec2;
+use crate::utils::{read_one_event, vec3_horizontal_vec2};
 use bevy::prelude::*;
 
 pub fn player_crouch(
-    keys: Res<Input<KeyCode>>,
     settings: Res<PlayerSettings>,
     time: Res<Time>,
+    input_ev_reader: EventReader<InputEvent>,
     mut player_state: ResMut<PlayerState>,
     mut kinematics: ResMut<PlayerKinematics>,
     mut player_query: Query<&mut Transform, With<Player>>,
 ) {
-    if keys.pressed(settings.crouch) && player_state.is_in_ground {
+    let input_ev = read_one_event(input_ev_reader);
+
+    if input_ev.is_crouching && player_state.is_in_ground {
         let speed_boost = settings.crouch_boost * player_state.crouch_state.charge;
         let current_dir = vec3_horizontal_vec2(player_state.velocity.linvel).normalize_or_zero();
         kinematics

@@ -9,9 +9,9 @@ pub fn reset_player(
     mut player_query: Query<(&mut Transform, &mut Velocity, &mut ExternalForce), With<Player>>,
     mut player_input: ResMut<PlayerInput>,
     mut player_state: ResMut<PlayerState>,
-    reset_audio: Res<AudioChannel<ResetAudio>>,
+    _reset_audio: Res<AudioChannel<ResetAudio>>,
     settings: Res<PlayerSettings>,
-    asset_server: Res<AssetServer>,
+    _asset_server: Res<AssetServer>,
 ) {
     if player_input.reset {
         info!("resetting player");

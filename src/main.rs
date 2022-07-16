@@ -2,12 +2,14 @@ extern crate core;
 
 mod camera;
 mod camera_player_sync;
+mod input;
 mod level;
 mod player;
 mod scene;
 mod utils;
 mod window;
 
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use bevy_kira_audio::*;
 use bevy_rapier3d::prelude::*;
@@ -125,6 +127,8 @@ fn main() {
         .add_plugin(camera::CameraPlugin)
         .add_plugin(player::PlayerPlugin)
         .add_plugin(level::LevelPlugin)
+        .add_plugin(input::InputPlugin)
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_system(cursor_grab)

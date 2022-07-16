@@ -19,7 +19,7 @@ pub fn setup_player(mut commands: Commands, player_settings: Res<PlayerSettings>
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Friction {
-            coefficient: 0.1,
+            coefficient: 0.0,
             combine_rule: CoefficientCombineRule::Min,
         })
         .insert(ColliderMassProperties::Density(1.0))

@@ -1,23 +1,16 @@
 use super::Player;
 use crate::player::{PlayerSettings, PlayerState, WallRunningState};
-use crate::utils::vec3_horizontal_vec2;
+use crate::utils::{rotate_vec, vec3_horizontal_vec2};
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use std::borrow::BorrowMut;
 use std::f32::consts::PI;
 
-fn rotate(v: Vec2, angle: f32) -> Vec2 {
-    Vec2::new(
-        v.x * angle.cos() - v.y * angle.sin(),
-        v.x * angle.sin() + v.y * angle.cos(),
-    )
-}
-
 fn nearest_with_angle(v: Vec2, other: Vec2, angle: f32) -> Vec2 {
     // clockwise
-    let v1 = rotate(v, angle);
+    let v1 = rotate_vec(v, angle);
     // counter-clockwise
-    let v2 = rotate(v, -angle);
+    let v2 = rotate_vec(v, -angle);
     if v1.angle_between(other).abs() < v2.angle_between(other).abs() {
         v1
     } else {
@@ -96,7 +89,7 @@ pub fn player_contacts(
             player_state.wall_run_vote += settings.wall_run_up_vote;
             info!("[+] vote wall run {}", player_state.wall_run_vote);
         } else {
-            const ANGLE_EPSILON: f32 = 0.03;
+            const ANGLE_EPSILON: f32 = 0.05;
             let tangent_direction = nearest_with_angle(
                 vec3_horizontal_vec2(horizontal_force.unwrap()),
                 vec3_horizontal_vec2(player_state.velocity.linvel),
@@ -125,37 +118,9 @@ pub fn player_contacts(
 
 #[cfg(test)]
 mod tests {
-    use crate::player::pre_system_player_compute_contacts::{nearest_with_angle, rotate};
-    use crate::Vec2;
+    use crate::player::pre_system_player_compute_contacts::nearest_with_angle;
+    use crate::{assert_almost_eq, Vec2};
     use std::f32::consts::PI;
-
-    macro_rules! assert_almost_eq {
-        ($n1: expr, $n2: expr) => {
-            match (&$n1, &$n2) {
-                (n1, n2) => {
-                    if (n1 - n2).abs() > 0.0000001 {
-                        assert_eq!(n1, n2)
-                    }
-                }
-            }
-        };
-    }
-
-    #[test]
-    fn test_rotate_clockwise_vec2() {
-        let input = Vec2::new(1.0, 0.0);
-        let rotated = rotate(input, PI / 2.0);
-        assert_almost_eq!(rotated.x, 0.0);
-        assert_almost_eq!(rotated.y, 1.0);
-    }
-
-    #[test]
-    fn test_rotate_counter_clockwise_vec2() {
-        let input = Vec2::new(1.0, 0.0);
-        let rotated = rotate(input, -PI / 2.0);
-        assert_almost_eq!(rotated.x, 0.0);
-        assert_almost_eq!(rotated.y, -1.0);
-    }
 
     #[test]
     fn test_nearest_with_angle() {

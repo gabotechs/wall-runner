@@ -50,7 +50,7 @@ pub fn player_contacts(
     if has_vertical_forces && !player_state.is_in_ground {
         if player_state.ground_vote < settings.ground_votes {
             player_state.ground_vote += settings.ground_up_vote;
-            info!("[+] vote ground {}", player_state.ground_vote);
+            debug!("[+] vote ground {}", player_state.ground_vote);
         }
         if player_state.ground_vote >= settings.ground_votes {
             info!("in ground");
@@ -61,7 +61,7 @@ pub fn player_contacts(
     } else if !has_vertical_forces && player_state.is_in_ground {
         if player_state.ground_vote > 0 {
             player_state.ground_vote -= settings.ground_down_vote;
-            info!("[-] vote ground {}", player_state.ground_vote);
+            debug!("[-] vote ground {}", player_state.ground_vote);
         }
         if player_state.ground_vote == 0 {
             info!("not in ground");
@@ -76,7 +76,7 @@ pub fn player_contacts(
     if can_be_wall_running && player_state.wall_running.is_none() {
         if player_state.wall_run_vote < settings.wall_run_votes {
             player_state.wall_run_vote += settings.wall_run_up_vote;
-            info!("[+] vote wall run {}", player_state.wall_run_vote);
+            debug!("[+] vote wall run {}", player_state.wall_run_vote);
         }
         if player_state.wall_run_vote >= settings.wall_run_votes {
             const ANGLE_EPSILON: f32 = 0.05;
@@ -96,7 +96,7 @@ pub fn player_contacts(
     } else if !can_be_wall_running && player_state.wall_running.is_some() {
         if player_state.wall_run_vote > 0 {
             player_state.wall_run_vote -= settings.wall_run_down_vote;
-            info!("[-] vote wall run {}", player_state.wall_run_vote);
+            debug!("[-] vote wall run {}", player_state.wall_run_vote);
         }
         if player_state.wall_run_vote == 0 {
             info!("stop wall run");

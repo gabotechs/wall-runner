@@ -1,5 +1,5 @@
+use crate::levels::{LevelSection, LevelStructure};
 use bevy::prelude::*;
-use crate::*;
 
 pub fn level() -> LevelStructure {
     LevelStructure {
@@ -63,5 +63,6 @@ pub fn level() -> LevelStructure {
                 ..default()
             },
         ],
+        win_z: 110.0,
     }
 }

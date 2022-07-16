@@ -9,20 +9,30 @@ use wall_runner_levels::*;
 use wall_runner_player::*;
 
 mod camera_player_sync;
+mod level_player_sync;
 mod window;
 
-const LEVEL: &str = "genesis";
-const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
-const FAIL_Y: f32 = -1.0;
+const LEVELS: [&str; 2] = ["jump", "genesis"];
 
-fn reset_player_if_fall(
-    player_state: ResMut<PlayerState>,
+const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
+
+fn player_level_finish(
+    mut current_level: Local<usize>,
+    mut ev_reader: EventReader<EventLevelFinish>,
     mut player_input: ResMut<PlayerInput>,
     mut camera_input: ResMut<CameraInput>,
+    mut level_input: ResMut<LevelInput>,
 ) {
-    if player_state.position.y < FAIL_Y {
+    for ev in ev_reader.iter() {
         player_input.reset = true;
         camera_input.reset = true;
+        if ev.win {
+            *current_level += 1;
+            if *current_level == LEVELS.len() {
+                *current_level = 0;
+            }
+            level_input.name = String::from(LEVELS[*current_level]);
+        }
     }
 }
 
@@ -52,7 +62,9 @@ pub fn app() {
             initial_position: Vec3::from(INITIAL_POS),
             ..default()
         })
-        .insert_resource(level(LEVEL))
+        .insert_resource(LevelInput {
+            name: String::from(LEVELS[0]),
+        })
         .add_plugins(DefaultPlugins)
         .add_plugin(AudioPlugin)
         .add_plugin(window::WindowPlugin)
@@ -64,8 +76,12 @@ pub fn app() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_system(cursor_grab)
-        .add_system(reset_player_if_fall)
+        .add_system(player_level_finish)
         .add_startup_system(initial_grab_cursor)
+        .add_system_to_stage(
+            CoreStage::PreUpdate,
+            level_player_sync::attach_player_to_level,
+        )
         .add_system_to_stage(
             CoreStage::PreUpdate,
             camera_player_sync::attach_camera_to_player,

@@ -12,7 +12,7 @@ pub fn attach_camera_to_player(
     player_settings: Res<PlayerSettings>,
 ) {
     const TILT_ANGLE_FACTOR: f32 = 0.4;
-    const HEAD_HORIZONTAL_OFFSET: f32 = 0.2;
+    const HEAD_HORIZONTAL_OFFSET: f32 = 0.0;
     camera_input.position = player_state.position;
     camera_input.position_offset.y = player_state.head_offset;
     camera_input.position_offset.x = camera_state.yaw.sin() * HEAD_HORIZONTAL_OFFSET;

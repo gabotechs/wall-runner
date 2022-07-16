@@ -12,6 +12,7 @@ wall_runner_camera = { path = "../wall_runner_camera" }
 wall_runner_input = { path = "../wall_runner_input" }
 wall_runner_player = { path = "../wall_runner_player" }
 wall_runner_utils = { path = "../wall_runner_utils" }
+wall_runner_levels = { path = "../wall_runner_levels" }
 
 [features]
 default = [

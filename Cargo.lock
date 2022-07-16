@@ -3463,6 +3463,7 @@ dependencies = [
  "bevy_rapier3d",
  "wall_runner_camera",
  "wall_runner_input",
+ "wall_runner_levels",
  "wall_runner_player",
  "wall_runner_utils",
 ]
@@ -3474,6 +3475,16 @@ dependencies = [
  "bevy",
  "wall_runner_camera",
  "wall_runner_player",
+ "wall_runner_utils",
+]
+
+[[package]]
+name = "wall_runner_levels"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_atmosphere",
+ "bevy_rapier3d",
  "wall_runner_utils",
 ]
 

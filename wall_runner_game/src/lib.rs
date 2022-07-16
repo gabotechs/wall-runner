@@ -5,78 +5,13 @@ use bevy_rapier3d::prelude::*;
 
 use wall_runner_camera::*;
 use wall_runner_input::*;
+use wall_runner_levels::*;
 use wall_runner_player::*;
 
 mod camera_player_sync;
-mod level;
-mod scene;
 mod window;
 
-fn get_levels() -> level::LevelStructure {
-    level::LevelStructure {
-        sections: vec![
-            level::LevelSection {
-                blocks: vec![
-                    shape::Box {
-                        min_x: 0.0,
-                        max_x: 5.0,
-                        min_y: 0.0,
-                        max_y: 1.0,
-                        min_z: 0.0,
-                        max_z: 40.0,
-                    },
-                    shape::Box {
-                        min_x: 0.0,
-                        max_x: 5.0,
-                        min_y: 2.5,
-                        max_y: 3.0,
-                        min_z: 20.0,
-                        max_z: 30.0,
-                    },
-                ],
-                ..default()
-            },
-            level::LevelSection {
-                blocks: vec![shape::Box {
-                    min_x: 0.0,
-                    max_x: 1.0,
-                    min_y: 3.0,
-                    max_y: 6.0,
-                    min_z: 0.0,
-                    max_z: 20.0,
-                }],
-                ..default()
-            },
-            level::LevelSection {
-                blocks: vec![shape::Box {
-                    min_x: 4.0,
-                    max_x: 5.0,
-                    min_y: 6.0,
-                    max_y: 9.0,
-                    min_z: 0.0,
-                    max_z: 20.0,
-                }],
-                ..default()
-            },
-            level::LevelSection {
-                length: Some(10.0),
-                ..default()
-            },
-            level::LevelSection {
-                blocks: vec![shape::Box {
-                    min_x: 0.0,
-                    max_x: 5.0,
-                    min_y: 0.0,
-                    max_y: 1.0,
-                    min_z: 0.0,
-                    max_z: 30.0,
-                }],
-                ..default()
-            },
-        ],
-    }
-}
-
+const LEVEL: &str = "genesis";
 const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
 const FAIL_Y: f32 = -1.0;
 
@@ -116,14 +51,13 @@ pub fn app() {
             initial_position: Vec3::from(INITIAL_POS),
             ..default()
         })
-        .insert_resource(get_levels())
+        .insert_resource(level(LEVEL))
         .add_plugins(DefaultPlugins)
         .add_plugin(AudioPlugin)
         .add_plugin(window::WindowPlugin)
-        .add_plugin(scene::ScenePlugin)
         .add_plugin(CameraPlugin)
         .add_plugin(PlayerPlugin)
-        .add_plugin(level::LevelPlugin)
+        .add_plugin(LevelPlugin)
         .add_plugin(InputPlugin)
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())

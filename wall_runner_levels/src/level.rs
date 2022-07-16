@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_atmosphere::{AtmosphereMat, AtmospherePlugin};
 use bevy_rapier3d::prelude::*;
 
 pub struct LevelPlugin;
@@ -16,8 +17,18 @@ pub struct LevelStructure {
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_level);
+        app.insert_resource(AtmosphereMat::default())
+            .add_plugin(AtmospherePlugin::default())
+            .add_startup_system(spawn_environment)
+            .add_startup_system(spawn_level);
     }
+}
+
+fn spawn_environment(mut commands: Commands) {
+    commands.insert_resource(AmbientLight {
+        brightness: 1.0,
+        ..default()
+    });
 }
 
 fn spawn_level(

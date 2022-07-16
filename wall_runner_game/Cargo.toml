@@ -1,0 +1,33 @@
+[package]
+name = "wall_runner_game"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.7.0"
+bevy_rapier3d = "0.14.1"
+bevy_kira_audio = "0.10.0"
+bevy_atmosphere = "0.3.1"
+wall_runner_camera = { path = "../wall_runner_camera" }
+wall_runner_input = { path = "../wall_runner_input" }
+wall_runner_player = { path = "../wall_runner_player" }
+wall_runner_utils = { path = "../wall_runner_utils" }
+
+[features]
+default = [
+    "bevy/bevy_winit",
+    "bevy/wayland", # linux
+    "bevy/render",
+    "bevy/png",
+    "bevy/x11",
+    "bevy/animation",
+    "bevy/bevy_gilrs",
+    "bevy/hdr",
+    "bevy/filesystem_watcher",
+    "bevy_kira_audio/wav",
+    "bevy_kira_audio/flac"
+]
+
+dev = [
+    "bevy/dynamic",
+]

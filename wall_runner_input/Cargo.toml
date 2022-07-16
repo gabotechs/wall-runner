@@ -1,0 +1,11 @@
+[package]
+name = "wall_runner_input"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+wall_runner_utils = { path = "../wall_runner_utils" }
+wall_runner_camera = { path = "../wall_runner_camera" }
+wall_runner_player = { path = "../wall_runner_player" }
+bevy = "0.7.0"
+

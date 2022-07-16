@@ -1,0 +1,9 @@
+[package]
+name = "wall_runner_camera"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+wall_runner_utils = { path = "../wall_runner_utils" }
+bevy = "0.7.0"
+

@@ -16,10 +16,10 @@ pub struct CrouchState {
 pub struct PlayerState {
     pub velocity: Velocity,
     pub position: Vec3,
-    pub ground_vote: u8,
+    pub ground_vote: i16,
     pub is_in_ground: bool,
     pub something_above: bool,
-    pub wall_run_vote: u8,
+    pub wall_run_vote: i16,
     pub wall_running: Option<WallRunningState>,
     pub crouch_state: CrouchState,
     pub head_offset: f32,

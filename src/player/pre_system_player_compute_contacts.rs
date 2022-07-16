@@ -42,7 +42,7 @@ pub fn player_contacts(
                 player_state.position,
                 Rot::default(),
                 Vec3::Y,
-                &Collider::ball(settings.width * 0.6),
+                &Collider::ball(settings.width),
                 (0.5 + 0.25) * settings.height,
                 InteractionGroups::all(),
                 Some(&|e| e != entity),
@@ -64,7 +64,8 @@ pub fn player_contacts(
         if player_state.ground_vote < settings.ground_votes {
             player_state.ground_vote += settings.ground_up_vote;
             info!("[+] vote ground {}", player_state.ground_vote);
-        } else {
+        }
+        if player_state.ground_vote >= settings.ground_votes {
             info!("in ground");
             player_state.is_in_ground = true;
         }
@@ -74,7 +75,8 @@ pub fn player_contacts(
         if player_state.ground_vote > 0 {
             player_state.ground_vote -= settings.ground_down_vote;
             info!("[-] vote ground {}", player_state.ground_vote);
-        } else {
+        }
+        if player_state.ground_vote == 0 {
             info!("not in ground");
             player_state.is_in_ground = false;
         }
@@ -88,7 +90,8 @@ pub fn player_contacts(
         if player_state.wall_run_vote < settings.wall_run_votes {
             player_state.wall_run_vote += settings.wall_run_up_vote;
             info!("[+] vote wall run {}", player_state.wall_run_vote);
-        } else {
+        }
+        if player_state.wall_run_vote >= settings.wall_run_votes {
             const ANGLE_EPSILON: f32 = 0.05;
             let tangent_direction = nearest_with_angle(
                 vec3_horizontal_vec2(horizontal_force.unwrap()),
@@ -107,7 +110,8 @@ pub fn player_contacts(
         if player_state.wall_run_vote > 0 {
             player_state.wall_run_vote -= settings.wall_run_down_vote;
             info!("[-] vote wall run {}", player_state.wall_run_vote);
-        } else {
+        }
+        if player_state.wall_run_vote == 0 {
             info!("stop wall run");
             player_state.wall_running = None;
         }

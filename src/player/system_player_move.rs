@@ -42,7 +42,7 @@ pub fn move_player(
         if input_ev.jump {
             kinematics.vertical_impulse += settings.jump_velocity;
             player_state.is_in_ground = false;
-            player_state.ground_vote = 0;
+            player_state.ground_vote = -settings.ground_up_vote;
         }
     } else if let Some(wall_running) = player_state.wall_running.borrow_mut() {
         // snap to wall if wall running
@@ -58,13 +58,13 @@ pub fn move_player(
             info!("Jumping out of wall {:?}", jump_velocity);
             kinematics.displacement.add_velocity(jump_velocity);
             kinematics.vertical_impulse += settings.jump_velocity;
-            player_state.wall_run_vote = 0;
+            player_state.wall_run_vote = -settings.wall_run_up_vote;
             player_state.wall_running = None;
         } else {
             let wall_run_speed = if let Some(speed) = wall_running.speed {
                 speed
             } else {
-                wall_running.speed = Some(prev_frame_velocity.length());
+                wall_running.speed = Some(wall_run_displacement.length());
                 wall_running.speed.unwrap()
             };
             kinematics

@@ -22,11 +22,16 @@ pub fn setup_player(mut commands: Commands, player_settings: Res<PlayerSettings>
             coefficient: 0.0,
             combine_rule: CoefficientCombineRule::Min,
         })
+        .insert(Restitution {
+            coefficient: 0.0,
+            combine_rule: CoefficientCombineRule::Min,
+        })
         .insert(ColliderMassProperties::Density(1.0))
         .insert(ExternalForce::default())
         .insert(ExternalImpulse::default())
         .insert(GravityScale::default())
         .insert(Sleeping::disabled())
         .insert(Ccd::enabled())
+        .insert(Dominance::group(127))
         .insert(Player);
 }

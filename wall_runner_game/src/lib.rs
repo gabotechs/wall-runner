@@ -17,13 +17,20 @@ const LEVELS: [&str; 2] = ["jump", "genesis"];
 const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
 
 fn player_level_finish(
+    mut last_finished: Local<u128>,
+    time: Res<Time>,
     mut current_level: Local<usize>,
     mut ev_reader: EventReader<EventLevelFinish>,
     mut player_input: ResMut<PlayerInput>,
     mut camera_input: ResMut<CameraInput>,
     mut level_input: ResMut<LevelInput>,
 ) {
+    let now = time.time_since_startup().as_millis();
+    if now - *last_finished < 1000 {
+        return;
+    }
     for ev in ev_reader.iter() {
+        *last_finished = now;
         player_input.reset = true;
         camera_input.reset = true;
         if ev.win {
@@ -76,8 +83,8 @@ pub fn app() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_system(cursor_grab)
-        .add_system(player_level_finish)
         .add_startup_system(initial_grab_cursor)
+        .add_system_to_stage(CoreStage::PostUpdate, player_level_finish)
         .add_system_to_stage(
             CoreStage::PreUpdate,
             level_player_sync::attach_player_to_level,

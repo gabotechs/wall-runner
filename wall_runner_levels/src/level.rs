@@ -17,10 +17,13 @@ pub struct LevelStructure {
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(AtmosphereMat::default())
-            .add_plugin(AtmospherePlugin::default())
-            .add_startup_system(spawn_environment)
-            .add_startup_system(spawn_level);
+        app.insert_resource(AtmosphereMat {
+            planet_radius: AtmosphereMat::default().planet_radius - 5000.0,
+            ..default()
+        })
+        .add_plugin(AtmospherePlugin::default())
+        .add_startup_system(spawn_environment)
+        .add_startup_system(spawn_level);
     }
 }
 

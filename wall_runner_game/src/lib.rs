@@ -47,6 +47,7 @@ fn initial_grab_cursor(mut windows: ResMut<Windows>) {
 
 pub fn app() {
     App::new()
+        .insert_resource(Msaa { samples: 4 })
         .insert_resource(PlayerSettings {
             initial_position: Vec3::from(INITIAL_POS),
             ..default()

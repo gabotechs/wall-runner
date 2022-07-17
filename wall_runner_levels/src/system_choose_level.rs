@@ -1,7 +1,6 @@
 use crate::component_level::LevelComponent;
-use crate::levels::level_genesis;
-use crate::levels::level_jump;
 use crate::levels::LevelStructure;
+use crate::levels::{level_genesis, level_jump, level_wall_run};
 use crate::resource_level_status::LevelStatus;
 use crate::LevelInput;
 use bevy::prelude::*;
@@ -11,6 +10,7 @@ fn level(n: &str) -> LevelStructure {
     match n {
         "jump" => level_jump::level(),
         "genesis" => level_genesis::level(),
+        "wall_run" => level_wall_run::level(),
         _ => panic!("Level {} does not exist", n),
     }
 }
@@ -31,33 +31,20 @@ pub fn choose_level(
         commands.entity(component).despawn();
     }
 
-    let mut current_z = 0.0;
     let level_structure = level(level_name.name.as_str());
     level_status.current_level = level_name.name.clone();
     level_status.current_win_z = level_structure.win_z;
-    for section in level_structure.sections.iter() {
-        let mut max_z_in_block = 0.0;
-        for block in section.blocks.iter() {
-            if block.max_z > max_z_in_block {
-                max_z_in_block = block.max_z;
-            }
-            let mesh = Mesh::from(*block);
-            let collider = Collider::from_bevy_mesh(&mesh, &ComputedColliderShape::TriMesh);
-            commands
-                .spawn_bundle(PbrBundle {
-                    mesh: meshes.add(mesh),
-                    transform: Transform::from_xyz(0.0, 0.0, current_z - block.max_z - block.min_z),
-                    material: materials.add(Color::rgb(0.2, 0.3, 0.8).into()),
-                    ..default()
-                })
-                .insert(RigidBody::Fixed)
-                .insert(collider.unwrap())
-                .insert(LevelComponent);
-        }
-        if let Some(section_length) = section.length {
-            current_z -= section_length;
-        } else {
-            current_z -= max_z_in_block;
-        }
+    for block in level_structure.blocks.iter() {
+        let collider = Collider::from_bevy_mesh(&block.mesh, &ComputedColliderShape::TriMesh);
+        commands
+            .spawn_bundle(PbrBundle {
+                mesh: meshes.add(block.mesh.clone()),
+                transform: block.transform,
+                material: materials.add(block.color.into()),
+                ..default()
+            })
+            .insert(RigidBody::Fixed)
+            .insert(collider.unwrap())
+            .insert(LevelComponent);
     }
 }

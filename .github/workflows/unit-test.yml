@@ -10,6 +10,7 @@ env:
   CARGO_TERM_COLOR: always
   NIGHTLY_TOOLCHAIN: nightly-2022-07-13
 
+
 jobs:
   test:
     runs-on: macos-latest

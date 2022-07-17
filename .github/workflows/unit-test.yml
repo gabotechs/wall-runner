@@ -16,5 +16,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
-      - run: brew install michaeleisel/zld/zld
       - run: cargo test --all

@@ -28,7 +28,7 @@ jobs:
         with:
           path: target
           key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toochain@v1
+      - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ env.RUST_TOOLCHAIN }}

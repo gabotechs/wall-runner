@@ -1,7 +1,7 @@
 use crate::{CameraInput, CameraState, GameCamera};
 use bevy::prelude::*;
 
-const STEP: f32 = 3.0;
+const STEP: f32 = 8.0;
 
 pub fn camera_position(
     camera_input: Res<CameraInput>,

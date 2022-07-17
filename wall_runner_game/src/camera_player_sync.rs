@@ -14,6 +14,10 @@ pub fn attach_camera_to_player(
     const TILT_ANGLE_FACTOR: f32 = 0.4;
     const HEAD_HORIZONTAL_OFFSET: f32 = 0.0;
     camera_input.position = player_state.position;
+    if player_state.crouch_state.is_crouching {
+        camera_input.position.y +=
+            (player_settings.height - player_settings.height_crouching) * 0.5;
+    }
     camera_input.position_offset.y = player_state.head_offset;
     camera_input.position_offset.x = camera_state.yaw.sin() * HEAD_HORIZONTAL_OFFSET;
     camera_input.position_offset.z = camera_state.yaw.cos() * HEAD_HORIZONTAL_OFFSET;
@@ -23,7 +27,7 @@ pub fn attach_camera_to_player(
         let angle = wall_vector.angle_between(move_vector);
         if !angle.is_nan() {
             camera_input.tilt_angle =
-                angle.sin() * move_vector.length() / player_settings.speed * TILT_ANGLE_FACTOR;
+                angle.sin() * move_vector.length() / player_settings.run_speed * TILT_ANGLE_FACTOR;
         }
     } else {
         camera_input.tilt_angle = 0.0;

@@ -31,13 +31,13 @@ pub fn move_player(
     );
     let move_vector = -1.0 * move_vector; // don't know why, but this is inverted
     let move_vector = rotate_vec(move_vector, -player_input.y_angle);
-    let move_vector = move_vector * settings.speed;
+    let move_vector = move_vector * settings.run_speed;
     let prev_frame_velocity = vec3_horizontal_vec2(player_state.velocity.linvel);
     if player_state.is_in_ground {
         // set the velocity
         kinematics.displacement.add_velocity(move_vector);
         if input_ev.jump {
-            kinematics.vertical_impulse += settings.jump_velocity;
+            kinematics.vertical_impulse += settings.jump_speed;
             player_state.is_in_ground = false;
             player_state.ground_vote = -settings.ground_up_vote;
         }
@@ -50,11 +50,11 @@ pub fn move_player(
                 move_vector,
                 vec3_horizontal_vec2(wall_running.normal_force),
                 wall_run_displacement,
-                settings.jump_velocity,
+                settings.jump_speed,
             );
             info!("Jumping out of wall {:?}", jump_velocity);
             kinematics.displacement.add_velocity(jump_velocity);
-            kinematics.vertical_impulse += settings.jump_velocity;
+            kinematics.vertical_impulse += settings.jump_speed;
             player_state.wall_run_vote = -settings.wall_run_up_vote;
             player_state.wall_running = None;
         } else {

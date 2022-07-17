@@ -8,10 +8,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
-      - run: apt install libwayland-dev
       - run: cargo build
       - run: cargo test --all

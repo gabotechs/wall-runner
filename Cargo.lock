@@ -3440,14 +3440,14 @@ dependencies = [
 
 [[package]]
 name = "wall-runner"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "wall_runner_game",
 ]
 
 [[package]]
 name = "wall_runner_camera"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bevy",
  "wall_runner_utils",
@@ -3455,7 +3455,7 @@ dependencies = [
 
 [[package]]
 name = "wall_runner_game"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bevy",
  "bevy_atmosphere",
@@ -3470,7 +3470,7 @@ dependencies = [
 
 [[package]]
 name = "wall_runner_input"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bevy",
  "wall_runner_camera",
@@ -3480,7 +3480,7 @@ dependencies = [
 
 [[package]]
 name = "wall_runner_levels"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bevy",
  "bevy_atmosphere",
@@ -3490,7 +3490,7 @@ dependencies = [
 
 [[package]]
 name = "wall_runner_player"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bevy",
  "bevy_kira_audio",
@@ -3500,7 +3500,7 @@ dependencies = [
 
 [[package]]
 name = "wall_runner_utils"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bevy",
 ]

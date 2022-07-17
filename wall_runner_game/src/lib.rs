@@ -12,7 +12,7 @@ mod camera_player_sync;
 mod level_player_sync;
 mod window;
 
-const LEVELS: [&str; 2] = ["jump", "wall_run", "genesis"];
+const LEVELS: [&str; 3] = ["jump", "wall_run", "genesis"];
 
 const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
 

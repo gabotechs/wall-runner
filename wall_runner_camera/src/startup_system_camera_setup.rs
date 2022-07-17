@@ -8,10 +8,8 @@ pub fn setup_camera(
 ) {
     commands
         .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_xyz(
-                camera_input.position.x,
-                camera_input.position.y,
-                camera_input.position.z,
+            transform: Transform::from_translation(
+                camera_input.position + camera_input.position_offset,
             )
             .with_rotation(
                 Quat::from_axis_angle(Vec3::Y, camera_settings.initial_yaw)

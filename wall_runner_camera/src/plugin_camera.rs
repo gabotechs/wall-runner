@@ -4,8 +4,6 @@ use crate::system_camera_position::camera_position;
 use crate::system_camera_reset::camera_reset;
 use crate::system_camera_tilt::camera_tilt;
 use crate::{CameraControlEvent, CameraInput, CameraSettings, CameraState};
-use bevy::ecs::event::ManualEventReader;
-use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
 pub struct CameraPlugin;
@@ -14,7 +12,6 @@ impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CameraState>()
             .init_resource::<CameraInput>()
-            .init_resource::<ManualEventReader<MouseMotion>>()
             .init_resource::<CameraSettings>()
             .add_event::<CameraControlEvent>()
             .add_startup_system(setup_camera)

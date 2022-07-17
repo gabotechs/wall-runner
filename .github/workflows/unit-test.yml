@@ -7,6 +7,7 @@ on:
       - master
 
 env:
+  CARGO_TERM_COLOR: always
   NIGHTLY_TOOLCHAIN: nightly-2022-07-13
 
 jobs:
@@ -15,4 +16,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
+      - run: brew install michaeleisel/zld/zld
       - run: cargo test --all

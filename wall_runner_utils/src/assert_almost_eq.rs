@@ -10,3 +10,13 @@ macro_rules! assert_almost_eq {
         }
     };
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::assert_almost_eq;
+
+    #[test]
+    fn assert_almost_eq() {
+        assert_almost_eq!(0.00000001f32, 0.0);
+    }
+}

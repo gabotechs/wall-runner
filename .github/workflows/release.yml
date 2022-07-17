@@ -1,4 +1,4 @@
-name: unit-test
+name: release
 
 on:
   push:
@@ -10,7 +10,7 @@ env:
   RUST_TOOLCHAIN: nightly-2022-07-13
 
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,7 +35,12 @@ jobs:
         with:
           command: install
           args: cargo-workspaces
+      - name: Config git
+        run: git config --global user.name "Github Actions"
       - uses: actions-rs/cargo@v1
+        env:
+          GIT_USER: Github Actions
+          GIT_PASS: ${{ github.token }}
         with:
           command: workspaces
           args: version minor -y

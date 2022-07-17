@@ -6,8 +6,8 @@ pub fn camera_look(
     settings: Res<CameraSettings>,
     time: Res<Time>,
     camera_input: Res<CameraInput>,
-    mut camera_state: ResMut<CameraState>,
     input_ev_reader: EventReader<CameraControlEvent>,
+    mut camera_state: ResMut<CameraState>,
     mut query: Query<&mut Transform, With<GameCamera>>,
 ) {
     let input_ev = read_one_event(input_ev_reader);

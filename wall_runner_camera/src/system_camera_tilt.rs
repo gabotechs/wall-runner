@@ -27,18 +27,24 @@ mod tests {
     use crate::{CameraInput, CameraSettings, CameraState};
     use bevy::prelude::*;
 
+    fn setup_app(app: &mut App, camera_input: CameraInput) -> &mut App {
+        app.add_plugins(MinimalPlugins)
+            .init_resource::<CameraState>()
+            .init_resource::<CameraSettings>()
+            .insert_resource(camera_input)
+            .add_startup_system(setup_camera)
+    }
+
     #[test]
     fn test_tile_camera() {
         let mut app = App::new();
-
-        app.add_plugins(MinimalPlugins);
-        app.init_resource::<CameraState>();
-        app.init_resource::<CameraSettings>();
-        app.insert_resource(CameraInput {
-            tilt_angle: 1.0,
-            ..default()
-        });
-        app.add_startup_system(setup_camera);
+        let app = setup_app(
+            &mut app,
+            CameraInput {
+                tilt_angle: 1.0,
+                ..default()
+            },
+        );
         app.add_system(camera_tilt);
         app.update();
         app.update();

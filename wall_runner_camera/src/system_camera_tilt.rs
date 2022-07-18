@@ -20,3 +20,30 @@ pub fn camera_tilt(
         transform.rotation = yaw_quat * pitch_quat * tilt_quat;
     }
 }
+
+mod tests {
+    use crate::startup_system_camera_setup::setup_camera;
+    use crate::system_camera_tilt::camera_tilt;
+    use crate::{CameraInput, CameraSettings, CameraState};
+    use bevy::prelude::*;
+
+    #[test]
+    fn test_tile_camera() {
+        let mut app = App::new();
+
+        app.add_plugins(MinimalPlugins);
+        app.init_resource::<CameraState>();
+        app.init_resource::<CameraSettings>();
+        app.insert_resource(CameraInput {
+            tilt_angle: 1.0,
+            ..default()
+        });
+        app.add_startup_system(setup_camera);
+        app.add_system(camera_tilt);
+        app.update();
+        app.update();
+        let camera_state = app.world.get_resource::<CameraState>();
+        assert!(camera_state.unwrap().tilt > 0.0);
+        assert!(camera_state.unwrap().tilt < 1.0);
+    }
+}

@@ -61,6 +61,10 @@ pub fn move_player(
             let wall_run_speed = if let Some(speed) = wall_running.speed {
                 speed
             } else {
+                info!(
+                    "locking wall run speed to {}",
+                    wall_run_displacement.length()
+                );
                 wall_running.speed = Some(wall_run_displacement.length());
                 wall_running.speed.unwrap()
             };

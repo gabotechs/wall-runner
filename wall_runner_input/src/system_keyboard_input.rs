@@ -56,7 +56,6 @@ pub fn keyboard_input(
     if keys.pressed(settings.move_r) {
         player_ev.movement.x -= 1.0;
     }
-    player_ev.movement = player_ev.movement.normalize_or_zero();
     for mouse_ev in reader_motion.iter(&motion) {
         camera_ev.look.x += mouse_ev.delta.x * settings.mouse_sensibility;
         camera_ev.look.y += mouse_ev.delta.y * settings.mouse_sensibility;

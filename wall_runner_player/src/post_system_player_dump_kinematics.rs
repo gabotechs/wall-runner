@@ -33,11 +33,13 @@ pub fn player_dump_kinematics(
                 // do nothing
             }
         }
+        // always dump gravity
         gravity.0 = kinematics.gravity;
 
         // update wall_runner_player state
         player_state.velocity = *velocity;
         player_state.position = transform.translation;
     }
+    // reset the kinematics, the next frame will be a new day
     *kinematics = PlayerKinematics::default();
 }

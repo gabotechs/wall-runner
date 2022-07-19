@@ -1,4 +1,5 @@
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy::ecs::schedule::ShouldRun;
 use bevy::prelude::*;
 use bevy_kira_audio::*;
 use bevy_rapier3d::prelude::*;
@@ -18,6 +19,14 @@ pub(crate) const LEVELS: [&str; 3] = ["jump", "wall_run", "genesis"];
 
 pub(crate) const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
 
+fn run_criteria(input: Res<PlayerInput>) -> ShouldRun {
+    if input.inactive {
+        ShouldRun::No
+    } else {
+        ShouldRun::Yes
+    }
+}
+
 pub fn app() {
     App::new()
         .insert_resource(Msaa { samples: 4 })
@@ -36,7 +45,39 @@ pub fn app() {
         .add_plugin(LevelPlugin)
         .add_plugin(InputPlugin)
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false))
+        .add_stage_after(
+            CoreStage::Update,
+            PhysicsStages::SyncBackend,
+            SystemStage::parallel().with_system_set(
+                RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsStages::SyncBackend)
+                    .with_run_criteria(run_criteria),
+            ),
+        )
+        .add_stage_after(
+            PhysicsStages::SyncBackend,
+            PhysicsStages::StepSimulation,
+            SystemStage::parallel().with_system_set(
+                RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsStages::StepSimulation)
+                    .with_run_criteria(run_criteria),
+            ),
+        )
+        .add_stage_after(
+            PhysicsStages::StepSimulation,
+            PhysicsStages::Writeback,
+            SystemStage::parallel().with_system_set(
+                RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsStages::Writeback)
+                    .with_run_criteria(run_criteria),
+            ),
+        )
+        .add_stage_before(
+            CoreStage::Last,
+            PhysicsStages::DetectDespawn,
+            SystemStage::parallel().with_system_set(
+                RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsStages::DetectDespawn)
+                    .with_run_criteria(run_criteria),
+            ),
+        )
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_system_to_stage(
             CoreStage::PreUpdate,

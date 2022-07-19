@@ -51,5 +51,9 @@ mod tests {
         let camera_state = app.world.get_resource::<CameraState>();
         assert!(camera_state.unwrap().tilt > 0.0);
         assert!(camera_state.unwrap().tilt < 1.0);
+        let prev = camera_state.unwrap().tilt;
+        app.update();
+        let camera_state = app.world.get_resource::<CameraState>();
+        assert!(camera_state.unwrap().tilt > prev);
     }
 }

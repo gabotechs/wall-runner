@@ -36,7 +36,7 @@ mod tests {
     }
 
     #[test]
-    fn test_tile_camera() {
+    fn test_tilt_camera() {
         let mut app = App::new();
         let app = setup_app(
             &mut app,

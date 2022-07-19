@@ -28,3 +28,39 @@ pub fn camera_look(
         transform.rotation = yaw_quat * pitch_quat * tilt_quat;
     }
 }
+
+mod tests {
+    use crate::startup_system_camera_setup::setup_camera;
+    use crate::system_camera_look::camera_look;
+    use crate::{CameraControlEvent, CameraInput, CameraSettings, CameraState, GameCamera};
+    use bevy::ecs::event::Events;
+    use bevy::prelude::*;
+    use std::f32::consts::PI;
+
+    fn setup_app(app: &mut App) -> &mut App {
+        app.add_plugins(MinimalPlugins)
+            .add_event::<CameraControlEvent>()
+            .init_resource::<CameraState>()
+            .init_resource::<CameraSettings>()
+            .init_resource::<CameraInput>()
+            .add_startup_system(setup_camera)
+    }
+
+    #[test]
+    fn test_camera_look() {
+        let mut app = App::new();
+        let app = setup_app(&mut app);
+        app.add_system(camera_look);
+        app.update();
+        let mut ev_writer = app.world.resource_mut::<Events<CameraControlEvent>>();
+        ev_writer.send(CameraControlEvent {
+            look: Vec2::new(30.0 * PI / 180.0, -30.0 * PI / 180.0),
+        });
+        app.update();
+        let mut query = app.world.query_filtered::<&Transform, With<GameCamera>>();
+        for camera in query.iter_mut(&mut app.world) {
+            assert!(camera.rotation.x > 0.0);
+            assert!(camera.rotation.y < 0.0);
+        }
+    }
+}

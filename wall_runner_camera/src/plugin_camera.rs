@@ -4,6 +4,7 @@ use crate::system_camera_position::camera_position;
 use crate::system_camera_reset::camera_reset;
 use crate::system_camera_tilt::camera_tilt;
 use crate::{CameraControlEvent, CameraInput, CameraSettings, CameraState};
+use bevy::ecs::schedule::ShouldRun;
 use bevy::prelude::*;
 
 pub struct CameraPlugin;
@@ -15,9 +16,19 @@ impl Plugin for CameraPlugin {
             .init_resource::<CameraSettings>()
             .add_event::<CameraControlEvent>()
             .add_startup_system(setup_camera)
-            .add_system(camera_tilt)
-            .add_system(camera_reset)
-            .add_system(camera_position)
-            .add_system(camera_look);
+            .add_system_set(
+                SystemSet::new()
+                    .with_run_criteria(|input: Res<CameraInput>| -> ShouldRun {
+                        if input.inactive {
+                            ShouldRun::No
+                        } else {
+                            ShouldRun::Yes
+                        }
+                    })
+                    .with_system(camera_tilt)
+                    .with_system(camera_reset)
+                    .with_system(camera_position)
+                    .with_system(camera_look),
+            );
     }
 }

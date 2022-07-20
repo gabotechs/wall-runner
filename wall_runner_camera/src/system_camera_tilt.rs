@@ -21,6 +21,7 @@ pub fn camera_tilt(
     }
 }
 
+#[cfg(test)]
 mod tests {
     use crate::startup_system_camera_setup::setup_camera;
     use crate::system_camera_tilt::camera_tilt;

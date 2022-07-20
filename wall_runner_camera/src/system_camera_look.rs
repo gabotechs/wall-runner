@@ -25,10 +25,11 @@ pub fn camera_look(
     }
 }
 
+#[cfg(test)]
 mod tests {
     use crate::startup_system_camera_setup::setup_camera;
     use crate::system_camera_look::camera_look;
-    use crate::{CameraControlEvent, CameraSettings, CameraState, GameCamera};
+    use crate::{CameraControlEvent, CameraInput, CameraSettings, CameraState, GameCamera};
     use bevy::ecs::event::Events;
     use bevy::prelude::*;
     use std::f32::consts::PI;
@@ -37,6 +38,7 @@ mod tests {
         app.add_plugins(MinimalPlugins)
             .add_event::<CameraControlEvent>()
             .init_resource::<CameraState>()
+            .init_resource::<CameraInput>()
             .init_resource::<CameraSettings>()
             .add_startup_system(setup_camera)
     }

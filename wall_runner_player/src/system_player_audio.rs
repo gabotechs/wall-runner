@@ -1,6 +1,6 @@
-use crate::{PlayerState};
-use bevy_kira_audio::*;
+use crate::PlayerState;
 use bevy::prelude::*;
+use bevy_kira_audio::*;
 
 pub struct WallRunAudio;
 
@@ -17,10 +17,10 @@ pub struct PlayerAudioState {
 pub fn player_audio(
     player_state: Res<PlayerState>,
     time: Res<Time>,
-    mut player_audio_state: ResMut<PlayerAudioState>,
     wall_run_audio: Res<AudioChannel<WallRunAudio>>,
     land_audio: Res<AudioChannel<LandAudio>>,
     asset_server: Res<AssetServer>,
+    mut player_audio_state: ResMut<PlayerAudioState>,
 ) {
     if let Some(wall_running) = &player_state.wall_running {
         if wall_running.just_started {

@@ -5,5 +5,6 @@ edition = "2021"
 
 [dependencies]
 wall_runner_utils = { path = "../wall_runner_utils" }
+wall_runner_events = { path = "../wall_runner_events" }
 bevy = "0.7.0"
 

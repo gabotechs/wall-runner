@@ -9,6 +9,7 @@ repository = "https://github.com/gabotechs/wall-runner"
 [workspace]
 resolver = "2"
 members = [
+    "wall_runner_events",
     "wall_runner_game",
     "wall_runner_player",
     "wall_runner_camera",

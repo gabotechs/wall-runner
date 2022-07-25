@@ -1,4 +1,5 @@
-use crate::PlayerState;
+use crate::component_player_state::PlayerState;
+use crate::Player;
 use bevy::prelude::*;
 use bevy_kira_audio::*;
 
@@ -15,32 +16,34 @@ pub struct PlayerAudioState {
 }
 
 pub fn player_audio(
-    player_state: Res<PlayerState>,
     time: Res<Time>,
     wall_run_audio: Res<AudioChannel<WallRunAudio>>,
     land_audio: Res<AudioChannel<LandAudio>>,
     asset_server: Res<AssetServer>,
     mut player_audio_state: ResMut<PlayerAudioState>,
+    mut player_query: Query<&PlayerState, With<Player>>,
 ) {
-    if let Some(wall_running) = &player_state.wall_running {
-        if wall_running.just_started {
-            player_audio_state.is_playing_wall_running = true;
+    for player_state in player_query.iter_mut() {
+        if let Some(wall_running) = &player_state.wall_running {
+            if wall_running.just_started {
+                player_audio_state.is_playing_wall_running = true;
+                wall_run_audio.stop();
+                wall_run_audio.play(asset_server.load("wall-run.flac"));
+            }
+        } else if player_audio_state.is_playing_wall_running {
             wall_run_audio.stop();
-            wall_run_audio.play(asset_server.load("wall-run.flac"));
+            wall_run_audio.play(asset_server.load("wall-run-decay.wav"));
+            player_audio_state.is_playing_wall_running = false;
         }
-    } else if player_audio_state.is_playing_wall_running {
-        wall_run_audio.stop();
-        wall_run_audio.play(asset_server.load("wall-run-decay.wav"));
-        player_audio_state.is_playing_wall_running = false;
-    }
-    let now = time.time_since_startup().as_millis();
-    if player_audio_state.in_air_since == 0 {
-        player_audio_state.in_air_since = now;
-    }
-    if player_state.is_in_ground {
-        if (now - player_audio_state.in_air_since) > PLAYED_LANDED_AFTER_MS {
-            land_audio.play(asset_server.load("land.flac"));
+        let now = time.time_since_startup().as_millis();
+        if player_audio_state.in_air_since == 0 {
+            player_audio_state.in_air_since = now;
         }
-        player_audio_state.in_air_since = now;
+        if player_state.is_in_ground {
+            if (now - player_audio_state.in_air_since) > PLAYED_LANDED_AFTER_MS {
+                land_audio.play(asset_server.load("land.flac"));
+            }
+            player_audio_state.in_air_since = now;
+        }
     }
 }

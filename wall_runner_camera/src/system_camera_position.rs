@@ -4,13 +4,11 @@ use bevy::prelude::*;
 const STEP: f32 = 8.0;
 
 pub fn camera_position(
-    camera_input: Res<CameraInput>,
     time: Res<Time>,
-    mut camera_state: ResMut<CameraState>,
-    mut camera_query: Query<&mut Transform, With<GameCamera>>,
+    mut camera_query: Query<(&mut Transform, &CameraInput, &mut CameraState), With<GameCamera>>,
 ) {
     let step = STEP * time.delta().as_secs_f32();
-    for mut transform in camera_query.iter_mut() {
+    for (mut transform, camera_input, mut camera_state) in camera_query.iter_mut() {
         transform.translation = camera_input.position;
 
         let diff_x = camera_input.position_offset.x - camera_state.offset.x;

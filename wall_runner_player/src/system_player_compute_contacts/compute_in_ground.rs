@@ -1,5 +1,6 @@
+use crate::component_player_state::PlayerState;
 use crate::system_player_compute_contacts::compute_forces::PlayerForces;
-use crate::{PlayerSettings, PlayerState};
+use crate::PlayerSettings;
 use bevy::prelude::*;
 
 pub fn compute_in_ground(

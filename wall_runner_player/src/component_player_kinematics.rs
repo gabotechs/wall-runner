@@ -39,7 +39,7 @@ impl HorizontalDisplacement {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Component)]
 pub struct PlayerKinematics {
     pub displacement: HorizontalDisplacement,
     pub vertical_impulse: f32,

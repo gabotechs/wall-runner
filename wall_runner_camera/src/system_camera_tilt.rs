@@ -26,7 +26,7 @@ mod tests {
     use crate::{CameraInput, CameraSettings, CameraState};
     use bevy::prelude::*;
 
-    fn setup_app(app: &mut App, camera_input: CameraInput) -> &mut App {
+    fn setup_app(app: &mut App) -> &mut App {
         app.add_plugins(MinimalPlugins)
             .init_resource::<CameraSettings>()
             .add_startup_system(setup_camera)
@@ -35,22 +35,25 @@ mod tests {
     #[test]
     fn test_tilt_camera() {
         let mut app = App::new();
-        let app = setup_app(
-            &mut app,
-            CameraInput {
-                tilt_angle: 1.0,
-                ..default()
-            },
-        );
+        let app = setup_app(&mut app);
+        let mut camera_input_query = app.world.query::<&mut CameraInput>();
         app.add_system(camera_tilt);
         app.update();
+        for mut camera_input in camera_input_query.iter_mut(&mut app.world) {
+            camera_input.tilt_angle = 1.0;
+        }
         app.update();
-        let camera_state = app.world.get_resource::<CameraState>();
-        assert!(camera_state.unwrap().tilt > 0.0);
-        assert!(camera_state.unwrap().tilt < 1.0);
-        let prev = camera_state.unwrap().tilt;
+        let mut camera_state_query = app.world.query::<&mut CameraState>();
+
+        let mut prev = 1.0;
+        for camera_state in camera_state_query.iter(&app.world) {
+            assert!(camera_state.tilt > 0.0);
+            assert!(camera_state.tilt < 1.0);
+            prev = camera_state.tilt;
+        }
         app.update();
-        let camera_state = app.world.get_resource::<CameraState>();
-        assert!(camera_state.unwrap().tilt > prev);
+        for camera_state in camera_state_query.iter(&app.world) {
+            assert!(camera_state.tilt > prev);
+        }
     }
 }

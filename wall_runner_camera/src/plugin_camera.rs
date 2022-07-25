@@ -3,7 +3,7 @@ use crate::system_camera_look::camera_look;
 use crate::system_camera_position::camera_position;
 use crate::system_camera_reset::camera_reset;
 use crate::system_camera_tilt::camera_tilt;
-use crate::{CameraControlEvent, CameraInput, CameraSettings, CameraState};
+use crate::{CameraControlEvent, CameraSettings};
 use bevy::prelude::*;
 use wall_runner_events::*;
 

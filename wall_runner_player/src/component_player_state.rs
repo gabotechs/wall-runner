@@ -13,6 +13,7 @@ pub struct CrouchState {
     pub charge: f32,
 }
 
+#[derive(Component)]
 pub struct PlayerState {
     pub velocity: Velocity,
     pub position: Vec3,

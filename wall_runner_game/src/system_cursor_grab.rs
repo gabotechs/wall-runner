@@ -1,13 +1,12 @@
 use bevy::prelude::*;
-use wall_runner_camera::CameraInput;
-use wall_runner_player::PlayerInput;
+use wall_runner_events::*;
 
 pub fn cursor_grab(
-    mut initial_grab: Local<bool>,
     keys: Res<Input<KeyCode>>,
+    mut initial_grab: Local<bool>,
     mut windows: ResMut<Windows>,
-    mut camera_input: ResMut<CameraInput>,
-    mut player_input: ResMut<PlayerInput>,
+    mut pause_ev_writer: EventWriter<PauseEvent>,
+    mut resume_ev_writer: EventWriter<ResumeEvent>,
 ) {
     let window = windows.get_primary_mut().unwrap();
     if !*initial_grab {
@@ -16,9 +15,13 @@ pub fn cursor_grab(
         *initial_grab = true;
     }
     if keys.just_pressed(KeyCode::Escape) {
-        camera_input.inactive = !camera_input.inactive;
-        player_input.inactive = !player_input.inactive;
-        window.set_cursor_lock_mode(!window.cursor_locked());
+        let was_running = window.cursor_locked();
+        if was_running {
+            pause_ev_writer.send(PauseEvent);
+        } else {
+            resume_ev_writer.send(ResumeEvent);
+        }
+        window.set_cursor_lock_mode(!was_running);
         window.set_cursor_visibility(!window.cursor_visible());
     }
 }

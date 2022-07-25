@@ -1,4 +1,6 @@
-#[derive(Default)]
+use bevy::prelude::*;
+
+#[derive(Default, Component)]
 pub struct PlayerInput {
     pub inactive: bool,
     pub reset: bool,

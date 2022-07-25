@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Default)]
+#[derive(Default, Component)]
 pub struct CameraState {
     pub pitch: f32,
     pub yaw: f32,

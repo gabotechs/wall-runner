@@ -3450,7 +3450,15 @@ name = "wall_runner_camera"
 version = "0.2.0"
 dependencies = [
  "bevy",
+ "wall_runner_events",
  "wall_runner_utils",
+]
+
+[[package]]
+name = "wall_runner_events"
+version = "0.0.0"
+dependencies = [
+ "bevy",
 ]
 
 [[package]]
@@ -3462,6 +3470,7 @@ dependencies = [
  "bevy_kira_audio",
  "bevy_rapier3d",
  "wall_runner_camera",
+ "wall_runner_events",
  "wall_runner_input",
  "wall_runner_levels",
  "wall_runner_player",
@@ -3495,6 +3504,7 @@ dependencies = [
  "bevy",
  "bevy_kira_audio",
  "bevy_rapier3d",
+ "wall_runner_events",
  "wall_runner_utils",
 ]
 

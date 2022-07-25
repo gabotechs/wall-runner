@@ -1,22 +1,25 @@
-use crate::resource_player_kinematics::{HorizontalDisplacement, PlayerKinematics};
-use crate::{Player, PlayerState};
+use crate::component_player_kinematics::{HorizontalDisplacement, PlayerKinematics};
+use crate::component_player_state::PlayerState;
+use crate::Player;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::{ExternalForce, GravityScale, Velocity};
 
 pub fn player_dump_kinematics(
-    mut kinematics: ResMut<PlayerKinematics>,
-    mut player_state: ResMut<PlayerState>,
     mut player_query: Query<
         (
             &Transform,
             &mut Velocity,
             &mut ExternalForce,
             &mut GravityScale,
+            &mut PlayerState,
+            &mut PlayerKinematics,
         ),
         With<Player>,
     >,
 ) {
-    for (&transform, mut velocity, mut force, mut gravity) in player_query.iter_mut() {
+    for (&transform, mut velocity, mut force, mut gravity, mut state, mut kinematics) in
+        player_query.iter_mut()
+    {
         velocity.linvel.y += kinematics.vertical_impulse;
         match kinematics.displacement {
             HorizontalDisplacement::Force(v) => {
@@ -37,9 +40,9 @@ pub fn player_dump_kinematics(
         gravity.0 = kinematics.gravity;
 
         // update wall_runner_player state
-        player_state.velocity = *velocity;
-        player_state.position = transform.translation;
+        state.velocity = *velocity;
+        state.position = transform.translation;
+        // reset the kinematics, the next frame will be a new day
+        *kinematics = PlayerKinematics::default();
     }
-    // reset the kinematics, the next frame will be a new day
-    *kinematics = PlayerKinematics::default();
 }

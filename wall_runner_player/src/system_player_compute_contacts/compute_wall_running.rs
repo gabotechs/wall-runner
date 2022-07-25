@@ -1,5 +1,6 @@
+use crate::component_player_state::{PlayerState, WallRunningState};
 use crate::system_player_compute_contacts::compute_forces::PlayerForces;
-use crate::{PlayerSettings, PlayerState, WallRunningState};
+use crate::PlayerSettings;
 use bevy::prelude::*;
 use std::borrow::BorrowMut;
 use std::f32::consts::PI;

@@ -1,4 +1,5 @@
-use crate::{Player, PlayerSettings, PlayerState};
+use crate::component_player_state::PlayerState;
+use crate::PlayerSettings;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
@@ -11,34 +12,32 @@ pub struct PlayerForces {
 pub(crate) fn compute_forces(
     rapier_context: &RapierContext,
     settings: &PlayerSettings,
-    player_state: &mut PlayerState,
-    player_query: &mut Query<Entity, With<Player>>,
+    entity: Entity,
+    state: &mut PlayerState,
 ) -> PlayerForces {
     let mut normal_forces: Vec<Vec3> = vec![];
-    for entity in player_query.iter_mut() {
-        for contact_pair in rapier_context.contacts_with(entity) {
-            let direction = if contact_pair.collider1() == entity {
-                -1.0
-            } else {
-                1.0
-            };
-            let best_manifold = contact_pair.find_deepest_contact();
-            if let Some((manifold, _)) = best_manifold {
-                normal_forces.push(manifold.normal() * direction);
-            }
+    for contact_pair in rapier_context.contacts_with(entity) {
+        let direction = if contact_pair.collider1() == entity {
+            -1.0
+        } else {
+            1.0
+        };
+        let best_manifold = contact_pair.find_deepest_contact();
+        if let Some((manifold, _)) = best_manifold {
+            normal_forces.push(manifold.normal() * direction);
         }
-        player_state.something_above = rapier_context
-            .cast_shape(
-                player_state.position,
-                Rot::default(),
-                Vec3::Y,
-                &Collider::ball(settings.width),
-                (0.5 + 0.25) * settings.height,
-                InteractionGroups::all(),
-                Some(&|e| e != entity),
-            )
-            .is_some();
     }
+    state.something_above = rapier_context
+        .cast_shape(
+            state.position,
+            Rot::default(),
+            Vec3::Y,
+            &Collider::ball(settings.width),
+            (0.5 + 0.25) * settings.height,
+            InteractionGroups::all(),
+            Some(&|e| e != entity),
+        )
+        .is_some();
     // if the manifold is positive and vertical, then we are on the ground
     let mut player_forces = PlayerForces::default();
     for normal_force in normal_forces {

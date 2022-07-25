@@ -5,6 +5,7 @@ use bevy_kira_audio::*;
 use bevy_rapier3d::prelude::*;
 
 use wall_runner_camera::*;
+use wall_runner_events::*;
 use wall_runner_input::*;
 use wall_runner_levels::*;
 use wall_runner_player::*;
@@ -19,14 +20,6 @@ pub(crate) const LEVELS: [&str; 3] = ["jump", "wall_run", "genesis"];
 
 pub(crate) const INITIAL_POS: (f32, f32, f32) = (2.5, 3.0, -2.0);
 
-fn run_criteria(input: Res<PlayerInput>) -> ShouldRun {
-    if input.inactive {
-        ShouldRun::No
-    } else {
-        ShouldRun::Yes
-    }
-}
-
 pub fn app() {
     App::new()
         .insert_resource(Msaa { samples: 4 })
@@ -38,6 +31,7 @@ pub fn app() {
             name: String::from(LEVELS[0]),
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(EventsPlugin)
         .add_plugin(AudioPlugin)
         .add_plugin(window::WindowPlugin)
         .add_plugin(CameraPlugin)
@@ -51,7 +45,7 @@ pub fn app() {
             PhysicsStages::SyncBackend,
             SystemStage::parallel().with_system_set(
                 RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsStages::SyncBackend)
-                    .with_run_criteria(run_criteria),
+                    .with_run_criteria(pause_run_criteria),
             ),
         )
         .add_stage_after(
@@ -59,7 +53,7 @@ pub fn app() {
             PhysicsStages::StepSimulation,
             SystemStage::parallel().with_system_set(
                 RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsStages::StepSimulation)
-                    .with_run_criteria(run_criteria),
+                    .with_run_criteria(pause_run_criteria),
             ),
         )
         .add_stage_after(
@@ -67,7 +61,7 @@ pub fn app() {
             PhysicsStages::Writeback,
             SystemStage::parallel().with_system_set(
                 RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsStages::Writeback)
-                    .with_run_criteria(run_criteria),
+                    .with_run_criteria(pause_run_criteria),
             ),
         )
         .add_stage_before(
@@ -75,7 +69,7 @@ pub fn app() {
             PhysicsStages::DetectDespawn,
             SystemStage::parallel().with_system_set(
                 RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsStages::DetectDespawn)
-                    .with_run_criteria(run_criteria),
+                    .with_run_criteria(pause_run_criteria),
             ),
         )
         // .add_plugin(RapierDebugRenderPlugin::default())

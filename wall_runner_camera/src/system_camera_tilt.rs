@@ -4,16 +4,14 @@ use bevy::prelude::*;
 const STEP: f32 = 2.0;
 
 pub fn camera_tilt(
-    camera_input: Res<CameraInput>,
     time: Res<Time>,
-    mut camera_state: ResMut<CameraState>,
-    mut query: Query<&mut Transform, With<Camera>>,
+    mut query: Query<(&mut Transform, &CameraInput, &mut CameraState), With<Camera>>,
 ) {
     let step = STEP * time.delta().as_secs_f32();
-    let diff_tilt = camera_input.tilt_angle - camera_state.tilt;
-    let diff_tilt = diff_tilt.clamp(-step, step);
-    camera_state.tilt += diff_tilt;
-    for mut transform in query.iter_mut() {
+    for (mut transform, camera_input, mut camera_state) in query.iter_mut() {
+        let diff_tilt = camera_input.tilt_angle - camera_state.tilt;
+        let diff_tilt = diff_tilt.clamp(-step, step);
+        camera_state.tilt += diff_tilt;
         let yaw_quat = Quat::from_axis_angle(Vec3::Y, camera_state.yaw);
         let pitch_quat = Quat::from_axis_angle(Vec3::X, camera_state.pitch);
         let tilt_quat = Quat::from_axis_angle(Vec3::Z, camera_state.tilt);
@@ -30,9 +28,7 @@ mod tests {
 
     fn setup_app(app: &mut App, camera_input: CameraInput) -> &mut App {
         app.add_plugins(MinimalPlugins)
-            .init_resource::<CameraState>()
             .init_resource::<CameraSettings>()
-            .insert_resource(camera_input)
             .add_startup_system(setup_camera)
     }
 

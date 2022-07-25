@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Default)]
+#[derive(Default, Component)]
 pub struct CameraInput {
     pub reset: bool,
     pub inactive: bool,

@@ -6,12 +6,11 @@ pub fn camera_look(
     settings: Res<CameraSettings>,
     time: Res<Time>,
     input_ev_reader: EventReader<CameraControlEvent>,
-    mut camera_state: ResMut<CameraState>,
-    mut query: Query<&mut Transform, With<GameCamera>>,
+    mut query: Query<(&mut Transform, &mut CameraState), With<GameCamera>>,
 ) {
     let input_ev = read_one_event(input_ev_reader);
     let scale = time.delta().as_secs_f32();
-    for mut transform in query.iter_mut() {
+    for (mut transform, mut camera_state) in query.iter_mut() {
         // Using smallest of height or width ensures equal vertical and horizontal sensitivity
         camera_state.pitch -= (settings.sensitivity * input_ev.look.y * scale).to_radians();
         camera_state.yaw -= (settings.sensitivity * input_ev.look.x * scale).to_radians();
@@ -37,7 +36,6 @@ mod tests {
     fn setup_app(app: &mut App) -> &mut App {
         app.add_plugins(MinimalPlugins)
             .add_event::<CameraControlEvent>()
-            .init_resource::<CameraState>()
             .init_resource::<CameraInput>()
             .init_resource::<CameraSettings>()
             .add_startup_system(setup_camera)

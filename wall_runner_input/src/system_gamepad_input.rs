@@ -61,7 +61,7 @@ pub fn gamepad_input(
         );
     }
 
-    // In a real wall_runner_game, the buttons would be configurable, but here we hardcode them
+    // In a real wall_runner_events, the buttons would be configurable, but here we hardcode them
     let jump_button = GamepadButton(gamepad, settings.jump);
     let crouch_button = GamepadButton(gamepad, settings.crouch);
 

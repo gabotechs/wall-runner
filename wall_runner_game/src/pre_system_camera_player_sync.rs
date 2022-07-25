@@ -6,8 +6,8 @@ use wall_runner_utils::*;
 
 pub fn attach_camera_to_player(
     player_settings: Res<PlayerSettings>,
-    mut camera_query: Query<(&mut CameraInput, &CameraState), With<GameCamera>>,
-    mut player_query: Query<(&mut PlayerInput, &PlayerState), With<Player>>,
+    mut camera_query: Query<(&mut CameraInput, &CameraState)>,
+    mut player_query: Query<(&mut PlayerInput, &PlayerState)>,
 ) {
     const TILT_ANGLE_FACTOR: f32 = 0.4;
     const HEAD_HORIZONTAL_OFFSET: f32 = 0.0;

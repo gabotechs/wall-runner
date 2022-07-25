@@ -1,11 +1,11 @@
-use crate::{CameraInput, CameraState, GameCamera};
+use crate::{CameraInput, CameraState};
 use bevy::prelude::*;
 
 const STEP: f32 = 8.0;
 
 pub fn camera_position(
     time: Res<Time>,
-    mut camera_query: Query<(&mut Transform, &CameraInput, &mut CameraState), With<GameCamera>>,
+    mut camera_query: Query<(&mut Transform, &CameraInput, &mut CameraState)>,
 ) {
     let step = STEP * time.delta().as_secs_f32();
     for (mut transform, camera_input, mut camera_state) in camera_query.iter_mut() {

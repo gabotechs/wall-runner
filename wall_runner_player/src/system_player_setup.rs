@@ -1,5 +1,5 @@
 use crate::component_player_kinematics::PlayerKinematics;
-use crate::{Player, PlayerInput, PlayerSettings, PlayerState};
+use crate::{PlayerInput, PlayerSettings, PlayerState};
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
@@ -36,6 +36,5 @@ pub fn setup_player(mut commands: Commands, player_settings: Res<PlayerSettings>
         .insert(Dominance::group(127))
         .insert(PlayerState::default())
         .insert(PlayerKinematics::default())
-        .insert(PlayerInput::default())
-        .insert(Player);
+        .insert(PlayerInput::default());
 }

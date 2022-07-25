@@ -1,9 +1,9 @@
-use crate::{CameraInput, CameraSettings, CameraState, GameCamera};
+use crate::{CameraInput, CameraSettings, CameraState};
 use bevy::prelude::*;
 
 pub fn camera_reset(
     camera_settings: Res<CameraSettings>,
-    mut camera_query: Query<(&mut Transform, &mut CameraInput, &mut CameraState), With<GameCamera>>,
+    mut camera_query: Query<(&mut Transform, &mut CameraInput, &mut CameraState)>,
 ) {
     for (mut transform, mut camera_input, mut camera_state) in camera_query.iter_mut() {
         if camera_input.reset {

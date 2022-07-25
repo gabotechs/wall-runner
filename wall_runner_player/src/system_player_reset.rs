@@ -1,5 +1,5 @@
 use crate::component_player_state::PlayerState;
-use crate::{Player, PlayerInput, PlayerSettings};
+use crate::{PlayerInput, PlayerSettings};
 use bevy::prelude::*;
 use bevy_kira_audio::AudioChannel;
 use bevy_rapier3d::prelude::*;
@@ -7,16 +7,13 @@ use bevy_rapier3d::prelude::*;
 pub struct ResetAudio;
 
 pub fn reset_player(
-    mut player_query: Query<
-        (
-            &mut Transform,
-            &mut Velocity,
-            &mut ExternalForce,
-            &mut PlayerInput,
-            &mut PlayerState,
-        ),
-        With<Player>,
-    >,
+    mut player_query: Query<(
+        &mut Transform,
+        &mut Velocity,
+        &mut ExternalForce,
+        &mut PlayerInput,
+        &mut PlayerState,
+    )>,
     _reset_audio: Res<AudioChannel<ResetAudio>>,
     settings: Res<PlayerSettings>,
     _asset_server: Res<AssetServer>,

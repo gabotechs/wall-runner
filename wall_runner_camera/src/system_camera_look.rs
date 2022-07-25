@@ -1,4 +1,4 @@
-use crate::{CameraControlEvent, CameraSettings, CameraState, GameCamera};
+use crate::{CameraControlEvent, CameraSettings, CameraState};
 use bevy::prelude::*;
 use wall_runner_utils::read_one_event;
 
@@ -6,7 +6,7 @@ pub fn camera_look(
     settings: Res<CameraSettings>,
     time: Res<Time>,
     input_ev_reader: EventReader<CameraControlEvent>,
-    mut query: Query<(&mut Transform, &mut CameraState), With<GameCamera>>,
+    mut query: Query<(&mut Transform, &mut CameraState)>,
 ) {
     let input_ev = read_one_event(input_ev_reader);
     let scale = time.delta().as_secs_f32();
@@ -28,7 +28,7 @@ pub fn camera_look(
 mod tests {
     use crate::startup_system_camera_setup::setup_camera;
     use crate::system_camera_look::camera_look;
-    use crate::{CameraControlEvent, CameraSettings, GameCamera};
+    use crate::{CameraControlEvent, CameraSettings, CameraState};
     use bevy::ecs::event::Events;
     use bevy::prelude::*;
     use std::f32::consts::PI;
@@ -51,7 +51,7 @@ mod tests {
             look: Vec2::new(30.0 * PI / 180.0, -30.0 * PI / 180.0),
         });
         app.update();
-        let mut query = app.world.query_filtered::<&Transform, With<GameCamera>>();
+        let mut query = app.world.query_filtered::<&Transform, With<CameraState>>();
         for camera in query.iter_mut(&mut app.world) {
             assert!(camera.rotation.x > 0.0);
             assert!(camera.rotation.y < 0.0);

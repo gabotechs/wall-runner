@@ -1,9 +1,6 @@
-extern crate core;
-
 mod component_player_input;
 mod component_player_kinematics;
 mod component_player_state;
-mod entity_player;
 mod event_player_control;
 mod plugin_player;
 mod resource_player_settings;
@@ -17,7 +14,6 @@ mod system_player_setup;
 
 pub use component_player_input::*;
 pub use component_player_state::*;
-pub use entity_player::*;
 pub use event_player_control::*;
 pub use plugin_player::*;
 pub use resource_player_settings::*;

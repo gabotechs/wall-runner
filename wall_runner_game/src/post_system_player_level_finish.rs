@@ -1,8 +1,8 @@
 use crate::LEVELS;
 use bevy::prelude::*;
-use wall_runner_camera::{CameraInput, GameCamera};
+use wall_runner_camera::CameraInput;
 use wall_runner_levels::{EventLevelFinish, LevelInput};
-use wall_runner_player::{Player, PlayerInput};
+use wall_runner_player::PlayerInput;
 
 pub fn player_level_finish(
     mut last_finished: Local<u128>,
@@ -10,8 +10,8 @@ pub fn player_level_finish(
     mut current_level: Local<usize>,
     mut ev_reader: EventReader<EventLevelFinish>,
     mut level_input: ResMut<LevelInput>,
-    mut camera_query: Query<&mut CameraInput, With<GameCamera>>,
-    mut player_query: Query<&mut PlayerInput, With<Player>>,
+    mut camera_query: Query<&mut CameraInput>,
+    mut player_query: Query<&mut PlayerInput>,
 ) {
     let now = time.time_since_startup().as_millis();
     if now - *last_finished < 1000 {

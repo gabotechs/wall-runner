@@ -1,5 +1,4 @@
 use crate::component_player_state::PlayerState;
-use crate::Player;
 use bevy::prelude::*;
 use bevy_kira_audio::*;
 
@@ -21,7 +20,7 @@ pub fn player_audio(
     land_audio: Res<AudioChannel<LandAudio>>,
     asset_server: Res<AssetServer>,
     mut player_audio_state: ResMut<PlayerAudioState>,
-    mut player_query: Query<&PlayerState, With<Player>>,
+    mut player_query: Query<&PlayerState>,
 ) {
     for player_state in player_query.iter_mut() {
         if let Some(wall_running) = &player_state.wall_running {

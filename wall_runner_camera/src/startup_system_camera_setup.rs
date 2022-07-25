@@ -1,4 +1,4 @@
-use crate::{CameraInput, CameraSettings, CameraState, GameCamera};
+use crate::{CameraInput, CameraSettings, CameraState};
 use bevy::prelude::*;
 
 pub fn setup_camera(mut commands: Commands, camera_settings: Res<CameraSettings>) {
@@ -11,6 +11,5 @@ pub fn setup_camera(mut commands: Commands, camera_settings: Res<CameraSettings>
             ..Default::default()
         })
         .insert(CameraState::default())
-        .insert(CameraInput::default())
-        .insert(GameCamera);
+        .insert(CameraInput::default());
 }

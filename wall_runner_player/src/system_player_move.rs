@@ -1,8 +1,7 @@
 use crate::component_player_kinematics::PlayerKinematics;
 use crate::component_player_state::PlayerState;
-use crate::{Player, PlayerControlEvent, PlayerInput, PlayerSettings};
+use crate::{PlayerControlEvent, PlayerInput, PlayerSettings};
 use bevy::prelude::*;
-use std::borrow::BorrowMut;
 use wall_runner_utils::{read_one_event, rotate_vec, vec3_horizontal_vec2};
 
 fn jump_out_of_wall(
@@ -20,7 +19,7 @@ fn jump_out_of_wall(
 pub fn move_player(
     input_ev_reader: EventReader<PlayerControlEvent>,
     settings: Res<PlayerSettings>,
-    mut player_query: Query<(&PlayerInput, &mut PlayerState, &mut PlayerKinematics), With<Player>>,
+    mut player_query: Query<(&PlayerInput, &mut PlayerState, &mut PlayerKinematics)>,
 ) {
     let input_ev = read_one_event(input_ev_reader);
     for (player_input, mut player_state, mut kinematics) in player_query.iter_mut() {
@@ -40,7 +39,7 @@ pub fn move_player(
                 player_state.is_in_ground = false;
                 player_state.ground_vote = -settings.ground_up_vote;
             }
-        } else if let Some(wall_running) = player_state.wall_running.borrow_mut() {
+        } else if let Some(wall_running) = &mut player_state.wall_running {
             // snap to wall if wall running
             kinematics.gravity = settings.wall_run_gravity;
             let wall_run_displacement = prev_frame_velocity.project_onto(wall_running.direction);

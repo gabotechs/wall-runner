@@ -1,5 +1,5 @@
 use crate::component_player_kinematics::PlayerKinematics;
-use crate::{Player, PlayerControlEvent, PlayerSettings, PlayerState};
+use crate::{PlayerControlEvent, PlayerSettings, PlayerState};
 use bevy::prelude::*;
 use wall_runner_utils::{read_one_event, vec3_horizontal_vec2};
 
@@ -9,10 +9,7 @@ pub fn player_crouch(
     settings: Res<PlayerSettings>,
     time: Res<Time>,
     input_ev_reader: EventReader<PlayerControlEvent>,
-    mut player_query: Query<
-        (&mut Transform, &mut PlayerState, &mut PlayerKinematics),
-        With<Player>,
-    >,
+    mut player_query: Query<(&mut Transform, &mut PlayerState, &mut PlayerKinematics)>,
 ) {
     let input_ev = read_one_event(input_ev_reader);
     for (mut transform, mut player_state, mut kinematics) in player_query.iter_mut() {
